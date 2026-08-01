@@ -3,14 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meal & Symptom Tracker</title>
+  <title>Meal &amp; Symptom Tracker</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Tracker" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <style>
     * { margin: 0; padding: 0; }
     html, body { height: 100%; }
-    body { background: #EFF3F0; }
+    body { background: #EFF3F0; -webkit-text-size-adjust: 100%; }
     #root { min-height: 100vh; }
   </style>
 </head>
@@ -258,6 +261,7 @@ function blankEntry(date) {
   return {
     date,
     meals: [],
+    symptomLogs: [],
     sleep: null,
     pain: null,
     stress: null,
@@ -266,6 +270,40 @@ function blankEntry(date) {
     pms: [],
     notes: "",
   };
+}
+
+/* Older entries predate symptomLogs / per-meal symptom fields — normalize on read */
+function normalizeEntry(e) {
+  if (!e) return null;
+  return {
+    ...e,
+    meals: (e.meals || []).map((m) => ({ ...m, symptoms: m.symptoms || [] })),
+    symptomLogs: e.symptomLogs || [],
+  };
+}
+
+function timeToMinutes(t) {
+  if (!t) return null;
+  const parts = t.split(":");
+  if (parts.length < 2) return null;
+  return Number(parts[0]) * 60 + Number(parts[1]);
+}
+
+function fmtTime12(t) {
+  if (!t) return "";
+  const mins = timeToMinutes(t);
+  if (mins == null) return t;
+  let h = Math.floor(mins / 60);
+  const m = mins % 60;
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  if (h === 0) h = 12;
+  return `${h}:${String(m).padStart(2, "0")} ${ampm}`;
+}
+
+function nowTimeStr() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
 /* Compute flag level for a name against watch list */
@@ -337,29 +375,30 @@ function MealBuilder({ library, watchList, onSave, onCancel, recentFoods }) {
   const [mealType, setMealType] = useState("Breakfast");
   const [time, setTime] = useState("");
   const [query, setQuery] = useState("");
-  const [items, setItems] = useState([]); // {libId, name, sizeId, sizeLabel, amount, calories, protein, flagLevel, flagReason}
-  const [symptoms, setSymptoms] = useState([]);
+  const [items, setItems] = useState([]);
   const [notes, setNotes] = useState("");
   const [saveComboName, setSaveComboName] = useState("");
   const [showSaveCombo, setShowSaveCombo] = useState(false);
 
-  const matches = query.trim()
-    ? library.filter((f) => f.name.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 6)
+  const q = query.trim();
+  const matches = q
+    ? library.filter((f) => f.name.toLowerCase().includes(q.toLowerCase())).slice(0, 6)
     : [];
+  const hasExact = q && library.some((f) => f.name.toLowerCase() === q.toLowerCase());
 
   const addFoodItem = (food) => {
-    const defaultSize = food.sizes[Math.min(1, food.sizes.length - 1)];
     setItems((prev) => [
       ...prev,
       {
         rowId: uid(),
         libId: food.id,
         name: food.name,
-        sizeId: defaultSize.id,
-        sizeLabel: defaultSize.label,
-        amount: defaultSize.amount,
-        calories: defaultSize.calories,
-        protein: defaultSize.protein,
+        custom: false,
+        sizeId: null,
+        sizeLabel: "",
+        amount: "",
+        calories: null,
+        protein: null,
         flagLevel: food.flagLevel,
         flagReason: food.flagReason,
         sizes: food.sizes,
@@ -368,25 +407,66 @@ function MealBuilder({ library, watchList, onSave, onCancel, recentFoods }) {
     setQuery("");
   };
 
+  const addCustomItem = (rawName) => {
+    const clean = (rawName || "").trim();
+    if (!clean) return;
+    const m = matchWatchList(clean, watchList);
+    setItems((prev) => [
+      ...prev,
+      {
+        rowId: uid(),
+        libId: null,
+        name: clean,
+        custom: true,
+        sizeId: null,
+        sizeLabel: "",
+        amount: "",
+        calories: null,
+        protein: null,
+        flagLevel: m.level,
+        flagReason: m.reason,
+        sizes: null,
+      },
+    ]);
+    setQuery("");
+  };
+
+  const handleSearchKey = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (matches.length === 1) addFoodItem(matches[0]);
+      else addCustomItem(q);
+    }
+  };
+
   const changeSize = (rowId, size) => {
     setItems((prev) =>
-      prev.map((it) =>
-        it.rowId === rowId
-          ? { ...it, sizeId: size.id, sizeLabel: size.label, amount: size.amount, calories: size.calories, protein: size.protein }
-          : it
-      )
+      prev.map((it) => {
+        if (it.rowId !== rowId) return it;
+        if (size === null) {
+          return { ...it, sizeId: null, sizeLabel: "", amount: "", calories: null, protein: null };
+        }
+        return {
+          ...it,
+          sizeId: size.id,
+          sizeLabel: size.label,
+          amount: size.amount,
+          calories: size.calories,
+          protein: size.protein,
+        };
+      })
     );
   };
 
-  const removeItem = (rowId) => setItems((prev) => prev.filter((it) => it.rowId !== rowId));
+  const changeAmountText = (rowId, text) =>
+    setItems((prev) => prev.map((it) => (it.rowId === rowId ? { ...it, amount: text } : it)));
 
-  const toggleSymptom = (s) =>
-    setSymptoms((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
+  const removeItem = (rowId) => setItems((prev) => prev.filter((it) => it.rowId !== rowId));
 
   const mealFlag = items.reduce((acc, it) => worstFlag(acc, it.flagLevel), "none");
   const totalCal = items.reduce((sum, it) => sum + (it.calories || 0), 0);
   const totalProtein = items.reduce((sum, it) => sum + (it.protein || 0), 0);
-
+  const anyUnsized = items.some((it) => it.calories == null);
   const flaggedNames = items.filter((it) => it.flagLevel !== "none").map((it) => it.name);
 
   const handleSave = () => {
@@ -396,11 +476,12 @@ function MealBuilder({ library, watchList, onSave, onCancel, recentFoods }) {
       type: mealType,
       time,
       items,
-      symptoms,
+      symptoms: [],
       notes,
       flagLevel: mealFlag,
       totalCal,
       totalProtein,
+      partialMacros: anyUnsized,
       saveAsCombo: showSaveCombo && saveComboName.trim() ? saveComboName.trim() : null,
     });
   };
@@ -423,9 +504,7 @@ function MealBuilder({ library, watchList, onSave, onCancel, recentFoods }) {
             {recentFoods.map((f) => (
               <button type="button" key={f.id} className="quick-add-chip" onClick={() => addFoodItem(f)}>
                 {f.name}
-                {f.flagLevel !== "none" && (
-                  <span className={`chip-dot dot-${f.flagLevel}`} />
-                )}
+                {f.flagLevel !== "none" && <span className={`chip-dot dot-${f.flagLevel}`} />}
               </button>
             ))}
           </div>
@@ -435,19 +514,27 @@ function MealBuilder({ library, watchList, onSave, onCancel, recentFoods }) {
       <div className="food-search">
         <input
           className="text-input search-input"
-          placeholder="Search food library (e.g. chicken, rice, egg)..."
+          placeholder="Type any ingredient — e.g. turkey sausage, squash, maple syrup"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleSearchKey}
         />
-        {matches.length > 0 && (
+        {q && (
           <div className="search-results">
             {matches.map((f) => (
               <button type="button" key={f.id} className="search-result-row" onClick={() => addFoodItem(f)}>
                 <span>{f.name}</span>
                 <FlagBadge level={f.flagLevel} reason={f.flagReason} />
-                {f.isCombo && <span className="tag tag-combo">quick meal</span>}
+                {f.isCombo && <span className="tag tag-combo">saved meal</span>}
               </button>
             ))}
+            {!hasExact && (
+              <button type="button" className="search-result-row add-custom-row" onClick={() => addCustomItem(q)}>
+                <span className="add-custom-plus">+</span>
+                <span>Add &ldquo;{q}&rdquo;</span>
+                <span className="add-custom-hint">as a new ingredient</span>
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -460,7 +547,9 @@ function MealBuilder({ library, watchList, onSave, onCancel, recentFoods }) {
       )}
 
       <div className="meal-items">
-        {items.length === 0 && <p className="empty-note">Search above and tap a food to add it to this meal.</p>}
+        {items.length === 0 && (
+          <p className="empty-note">Type an ingredient above and press Enter. Portion sizes are optional.</p>
+        )}
         {items.map((it) => (
           <div className="meal-item-row" key={it.rowId}>
             <div className="meal-item-top">
@@ -469,14 +558,30 @@ function MealBuilder({ library, watchList, onSave, onCancel, recentFoods }) {
               <button type="button" className="remove-btn inline" onClick={() => removeItem(it.rowId)}>×</button>
             </div>
             <div className="size-row">
-              <div className="segmented size-segmented">
-                {it.sizes.map((s) => (
-                  <Pill key={s.id} active={it.sizeId === s.id} onClick={() => changeSize(it.rowId, s)}>
-                    {s.label}
-                  </Pill>
-                ))}
-              </div>
-              <span className="macro-note">{it.amount} · {it.calories} cal · {it.protein}g protein</span>
+              {it.sizes ? (
+                <React.Fragment>
+                  <div className="segmented size-segmented">
+                    <Pill active={it.sizeId === null} onClick={() => changeSize(it.rowId, null)}>Skip</Pill>
+                    {it.sizes.map((s) => (
+                      <Pill key={s.id} active={it.sizeId === s.id} onClick={() => changeSize(it.rowId, s)}>
+                        {s.label}
+                      </Pill>
+                    ))}
+                  </div>
+                  <span className="macro-note">
+                    {it.sizeId === null
+                      ? "no portion recorded"
+                      : `${it.amount} · ${it.calories} cal · ${it.protein}g protein`}
+                  </span>
+                </React.Fragment>
+              ) : (
+                <input
+                  className="text-input amount-input"
+                  placeholder="Amount (optional) — e.g. 2 links, a handful"
+                  value={it.amount}
+                  onChange={(e) => changeAmountText(it.rowId, e.target.value)}
+                />
+              )}
             </div>
           </div>
         ))}
@@ -484,33 +589,29 @@ function MealBuilder({ library, watchList, onSave, onCancel, recentFoods }) {
 
       {items.length > 0 && (
         <div className="meal-totals">
-          <span>Total: <strong>{totalCal} cal</strong> · <strong>{totalProtein}g protein</strong></span>
-          {items.length > 1 && (
-            <button type="button" className="link-btn" onClick={() => setShowSaveCombo((s) => !s)}>
-              {showSaveCombo ? "Cancel save" : "Save this as a quick meal"}
-            </button>
-          )}
+          <span>
+            {totalCal > 0 ? (
+              <React.Fragment>
+                Total: <strong>{totalCal} cal</strong> · <strong>{totalProtein}g protein</strong>
+                {anyUnsized && <span className="partial-note"> (partial — some items have no portion)</span>}
+              </React.Fragment>
+            ) : (
+              <span className="partial-note">No portions recorded — that&rsquo;s fine.</span>
+            )}
+          </span>
+          <button type="button" className="link-btn" onClick={() => setShowSaveCombo((s) => !s)}>
+            {showSaveCombo ? "Cancel save" : "Save as a reusable meal"}
+          </button>
         </div>
       )}
       {showSaveCombo && (
         <input
           className="text-input"
-          placeholder="Name this combo (e.g. 'My pasta bowl')"
+          placeholder="Name this meal (e.g. 'Turkey sausage + squash')"
           value={saveComboName}
           onChange={(e) => setSaveComboName(e.target.value)}
         />
       )}
-
-      <div className="symptom-section">
-        <span className="field-label">How did she feel after? (optional, can add later)</span>
-        <div className="symptom-grid">
-          {SYMPTOMS.map((s) => (
-            <Pill key={s} active={symptoms.includes(s)} onClick={() => toggleSymptom(s)} tone="var(--accent)">
-              {s}
-            </Pill>
-          ))}
-        </div>
-      </div>
 
       <input
         className="text-input"
@@ -524,6 +625,119 @@ function MealBuilder({ library, watchList, onSave, onCancel, recentFoods }) {
         <button type="button" className="btn-primary" onClick={handleSave} disabled={items.length === 0}>
           Save meal
         </button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------
+   SYMPTOM LOGGER — timestamped, independent of meals
+--------------------------------------------------------- */
+function SymptomLogger({ logs, onAdd, onRemove }) {
+  const [open, setOpen] = useState(false);
+  const [time, setTime] = useState(nowTimeStr());
+  const [picked, setPicked] = useState([]);
+  const [severity, setSeverity] = useState(null);
+  const [note, setNote] = useState("");
+
+  const toggle = (s) => setPicked((p) => (p.includes(s) ? p.filter((x) => x !== s) : [...p, s]));
+
+  const reset = () => {
+    setTime(nowTimeStr());
+    setPicked([]);
+    setSeverity(null);
+    setNote("");
+    setOpen(false);
+  };
+
+  const submit = () => {
+    if (picked.length === 0) return;
+    onAdd({ id: uid(), time, symptoms: picked, severity, notes: note.trim() });
+    reset();
+  };
+
+  const sorted = logs
+    .slice()
+    .sort((a, b) => (timeToMinutes(a.time) ?? 9999) - (timeToMinutes(b.time) ?? 9999));
+
+  return (
+    <div className="card">
+      <div className="meals-head">
+        <div>
+          <h3 className="card-title">Symptom log</h3>
+          <p className="card-sub">Record symptoms as they happen, with the time they started.</p>
+        </div>
+        {!open && (
+          <button type="button" className="btn-primary" onClick={() => { setTime(nowTimeStr()); setOpen(true); }}>
+            + Log symptom
+          </button>
+        )}
+      </div>
+
+      {open && (
+        <div className="symptom-builder">
+          <div className="symptom-time-row">
+            <span className="field-label">Time it started</span>
+            <input type="time" className="text-input time-input" value={time} onChange={(e) => setTime(e.target.value)} />
+            <button type="button" className="link-btn" onClick={() => setTime(nowTimeStr())}>Now</button>
+          </div>
+
+          <div className="symptom-grid">
+            {SYMPTOMS.map((s) => (
+              <Pill key={s} active={picked.includes(s)} onClick={() => toggle(s)} tone="var(--accent)">
+                {s}
+              </Pill>
+            ))}
+          </div>
+
+          <div className="severity-row">
+            <span className="field-label">Severity (optional)</span>
+            <div className="segmented severity-segmented">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                <Pill key={n} active={severity === n} onClick={() => setSeverity(severity === n ? null : n)}>
+                  {n}
+                </Pill>
+              ))}
+            </div>
+          </div>
+
+          <input
+            className="text-input"
+            placeholder="Notes (optional)"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+
+          <div className="meal-builder-actions">
+            <button type="button" className="btn-secondary" onClick={reset}>Cancel</button>
+            <button type="button" className="btn-primary" onClick={submit} disabled={picked.length === 0}>
+              Save symptom
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="symptom-log-list">
+        {sorted.length === 0 && !open && <p className="empty-note">No symptoms logged today.</p>}
+        {sorted.map((log) => (
+          <div className="symptom-log-row" key={log.id}>
+            <span className="symptom-log-time">{fmtTime12(log.time) || "—"}</span>
+            <div className="symptom-log-body">
+              <div className="symptom-tags">
+                {log.symptoms.map((s) => (
+                  <span className="tag tag-symptom" key={s}>{s}</span>
+                ))}
+                {log.severity != null && (
+                  <span className="tag tag-severity" style={{ color: scaleColor(log.severity) }}>
+                    severity {log.severity}
+                  </span>
+                )}
+              </div>
+              {log.notes && <p className="meal-notes">{log.notes}</p>}
+            </div>
+            <button type="button" className="remove-btn" onClick={() => onRemove(log.id)}>×</button>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -553,20 +767,24 @@ function computeRecentFoods(entries, library, max = 6) {
    LOG TAB
 --------------------------------------------------------- */
 function LogTab({ entries, setEntries, persist, selectedDate, setSelectedDate, library, watchList }) {
-  const entry = entries[selectedDate] || blankEntry(selectedDate);
+  const entry = normalizeEntry(entries[selectedDate]) || blankEntry(selectedDate);
   const [builderOpen, setBuilderOpen] = useState(false);
-  const [editingSymptomsFor, setEditingSymptomsFor] = useState(null);
   const recentFoods = useMemo(() => computeRecentFoods(entries, library), [entries, library]);
 
   const updateEntry = useCallback(
     (patch) => {
-      const updated = { ...(entries[selectedDate] || blankEntry(selectedDate)), ...patch };
+      const base = normalizeEntry(entries[selectedDate]) || blankEntry(selectedDate);
+      const updated = { ...base, ...patch };
       const next = { ...entries, [selectedDate]: updated };
       setEntries(next);
       persist(next);
     },
-    [entries, selectedDate, entries, setEntries, persist]
+    [entries, selectedDate, setEntries, persist]
   );
+
+  const addSymptomLog = (log) => updateEntry({ symptomLogs: [...entry.symptomLogs, log] });
+  const removeSymptomLog = (id) =>
+    updateEntry({ symptomLogs: entry.symptomLogs.filter((l) => l.id !== id) });
 
   const saveMeal = (meal) => {
     updateEntry({ meals: [...entry.meals, meal] });
@@ -577,23 +795,13 @@ function LogTab({ entries, setEntries, persist, selectedDate, setSelectedDate, l
     updateEntry({ meals: entry.meals.filter((m) => m.id !== id) });
   };
 
-  const toggleMealSymptom = (mealId, symptom) => {
-    updateEntry({
-      meals: entry.meals.map((m) => {
-        if (m.id !== mealId) return m;
-        const has = m.symptoms.includes(symptom);
-        return { ...m, symptoms: has ? m.symptoms.filter((s) => s !== symptom) : [...m.symptoms, symptom] };
-      }),
-    });
-  };
-
   const togglePms = (opt) => {
     const has = entry.pms.includes(opt);
     updateEntry({ pms: has ? entry.pms.filter((p) => p !== opt) : [...entry.pms, opt] });
   };
 
-  const dayCal = entry.meals.reduce((s, m) => s + m.totalCal, 0);
-  const dayProtein = entry.meals.reduce((s, m) => s + m.totalProtein, 0);
+  const dayCal = entry.meals.reduce((s, m) => s + (m.totalCal || 0), 0);
+  const dayProtein = entry.meals.reduce((s, m) => s + (m.totalProtein || 0), 0);
 
   return (
     <div className="tab-body">
@@ -607,7 +815,7 @@ function LogTab({ entries, setEntries, persist, selectedDate, setSelectedDate, l
         <div className="meals-head">
           <div>
             <h3 className="card-title">Meals</h3>
-            {entry.meals.length > 0 && (
+            {dayCal > 0 && (
               <p className="card-sub">{dayCal} cal · {dayProtein}g protein today</p>
             )}
           </div>
@@ -643,26 +851,22 @@ function LogTab({ entries, setEntries, persist, selectedDate, setSelectedDate, l
               <div className="meal-card-items">
                 {m.items.map((it, i) => (
                   <span className="meal-item-chip" key={i}>
-                    {it.name} <span className="chip-size">({it.sizeLabel})</span>
+                    {it.name}
+                    {(it.sizeLabel || it.amount) && (
+                      <span className="chip-size"> ({it.sizeLabel || it.amount})</span>
+                    )}
                   </span>
                 ))}
               </div>
-              <div className="meal-card-foot">
-                <span className="macro-note">{m.totalCal} cal · {m.totalProtein}g protein</span>
-                <button type="button" className="link-btn" onClick={() => setEditingSymptomsFor(editingSymptomsFor === m.id ? null : m.id)}>
-                  {m.symptoms.length > 0 ? `${m.symptoms.length} symptom${m.symptoms.length > 1 ? "s" : ""}` : "Add symptoms"}
-                </button>
-              </div>
-              {editingSymptomsFor === m.id && (
-                <div className="symptom-grid inline-symptoms">
-                  {SYMPTOMS.map((s) => (
-                    <Pill key={s} active={m.symptoms.includes(s)} onClick={() => toggleMealSymptom(m.id, s)} tone="var(--accent)">
-                      {s}
-                    </Pill>
-                  ))}
+              {m.totalCal > 0 && (
+                <div className="meal-card-foot">
+                  <span className="macro-note">
+                    {m.totalCal} cal · {m.totalProtein}g protein
+                    {m.partialMacros ? " (partial)" : ""}
+                  </span>
                 </div>
               )}
-              {m.symptoms.length > 0 && editingSymptomsFor !== m.id && (
+              {m.symptoms && m.symptoms.length > 0 && (
                 <div className="symptom-tags">
                   {m.symptoms.map((s) => <span className="tag tag-symptom" key={s}>{s}</span>)}
                 </div>
@@ -672,6 +876,8 @@ function LogTab({ entries, setEntries, persist, selectedDate, setSelectedDate, l
           ))}
         </div>
       </div>
+
+      <SymptomLogger logs={entry.symptomLogs} onAdd={addSymptomLog} onRemove={removeSymptomLog} />
 
       <details className="card wellness-card">
         <summary className="card-title wellness-summary">Sleep, pain, stress &amp; cycle</summary>
@@ -958,9 +1164,10 @@ function HistoryTab({ entries, setEntries, persist, setSelectedDate, setActiveTa
       <div className="history-list">
         {sortedDates.map((date) => {
           const e = entries[date];
-          const worst = e.meals.reduce((acc, m) => worstFlag(acc, m.flagLevel), "none");
-          const symptomCount = e.meals.reduce((s, m) => s + m.symptoms.length, 0);
-          const dayCal = e.meals.reduce((s, m) => s + m.totalCal, 0);
+          const worst = (e.meals || []).reduce((acc, m) => worstFlag(acc, m.flagLevel), "none");
+          const legacySymptoms = (e.meals || []).reduce((s, m) => s + ((m.symptoms || []).length), 0);
+          const symptomCount = (e.symptomLogs || []).length + legacySymptoms;
+          const dayCal = (e.meals || []).reduce((s, m) => s + (m.totalCal || 0), 0);
           return (
             <div className="history-row" key={date}>
               <div className="history-date-col">
@@ -968,7 +1175,7 @@ function HistoryTab({ entries, setEntries, persist, setSelectedDate, setActiveTa
                 <span className="history-weekday">{new Date(date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short" })}</span>
               </div>
               <div className="history-stats">
-                <span className="stat">{e.meals.length} meal{e.meals.length !== 1 ? "s" : ""}</span>
+                <span className="stat">{(e.meals || []).length} meal{(e.meals || []).length !== 1 ? "s" : ""}</span>
                 {dayCal > 0 && <span className="stat">{dayCal} cal</span>}
                 <FlagBadge level={worst} reason="" />
                 {symptomCount > 0 && <span className="tag tag-symptom">{symptomCount} symptom{symptomCount > 1 ? "s" : ""}</span>}
@@ -1078,24 +1285,47 @@ function ReportTab({ entries }) {
     return { date: fmtDateShort(d), Sleep: e ? e.sleep : null, Pain: e ? e.pain : null, Stress: e ? e.stress : null };
   });
 
+  /* Frequency only — deliberately no food/symptom correlation is computed.
+     The chronological timeline below lets the doctor draw their own links. */
   const ingredientTally = useMemo(() => {
     const map = {};
     Object.values(entries).forEach((e) => {
-      e.meals.forEach((m) => {
-        const hadSymptom = m.symptoms.length > 0;
-        m.items.forEach((it) => {
+      (e.meals || []).forEach((m) => {
+        (m.items || []).forEach((it) => {
           if (it.flagLevel === "none") return;
           const key = it.name;
-          if (!map[key]) map[key] = { name: key, level: it.flagLevel, timesEaten: 0, timesSymptom: 0, symptoms: {} };
+          if (!map[key]) map[key] = { name: key, level: it.flagLevel, timesEaten: 0, days: new Set() };
           map[key].timesEaten += 1;
-          if (hadSymptom) {
-            map[key].timesSymptom += 1;
-            m.symptoms.forEach((s) => { map[key].symptoms[s] = (map[key].symptoms[s] || 0) + 1; });
-          }
+          map[key].days.add(e.date);
         });
       });
     });
-    return Object.values(map).sort((a, b) => b.timesSymptom - a.timesSymptom || b.timesEaten - a.timesEaten);
+    return Object.values(map)
+      .map((r) => ({ ...r, dayCount: r.days.size }))
+      .sort((a, b) => b.timesEaten - a.timesEaten);
+  }, [entries]);
+
+  const symptomTally = useMemo(() => {
+    const map = {};
+    Object.values(entries).forEach((e) => {
+      (e.symptomLogs || []).forEach((l) => {
+        (l.symptoms || []).forEach((s) => {
+          if (!map[s]) map[s] = { name: s, count: 0, days: new Set() };
+          map[s].count += 1;
+          map[s].days.add(e.date);
+        });
+      });
+      (e.meals || []).forEach((m) => {
+        (m.symptoms || []).forEach((s) => {
+          if (!map[s]) map[s] = { name: s, count: 0, days: new Set() };
+          map[s].count += 1;
+          map[s].days.add(e.date);
+        });
+      });
+    });
+    return Object.values(map)
+      .map((r) => ({ ...r, dayCount: r.days.size }))
+      .sort((a, b) => b.count - a.count);
   }, [entries]);
 
   const daysLogged = Object.keys(entries).length;
@@ -1126,34 +1356,71 @@ function ReportTab({ entries }) {
       </div>
 
       <div className="card">
-        <h3 className="card-title">Flagged ingredients vs. symptoms</h3>
+        <h3 className="card-title">Flagged ingredients eaten</h3>
+        <p className="card-sub">How often flagged foods appeared, for reference alongside the timeline.</p>
         {ingredientTally.length === 0 && <p className="empty-note">No flagged foods logged yet.</p>}
         {ingredientTally.length > 0 && (
           <table className="report-table">
-            <thead><tr><th>Ingredient</th><th>Flag</th><th>Times eaten</th><th>Meals with symptoms</th><th>Most common symptom</th></tr></thead>
+            <thead><tr><th>Ingredient</th><th>Flag</th><th>Times eaten</th><th>Days eaten</th></tr></thead>
             <tbody>
-              {ingredientTally.map((r) => {
-                const topSymptom = Object.entries(r.symptoms).sort((a, b) => b[1] - a[1])[0];
-                return (
-                  <tr key={r.name}>
-                    <td>{r.name}</td>
-                    <td><FlagBadge level={r.level} reason="" /></td>
-                    <td className="mono">{r.timesEaten}</td>
-                    <td className="mono">{r.timesSymptom}</td>
-                    <td>{topSymptom ? topSymptom[0] : "—"}</td>
-                  </tr>
-                );
-              })}
+              {ingredientTally.map((r) => (
+                <tr key={r.name}>
+                  <td>{r.name}</td>
+                  <td><FlagBadge level={r.level} reason="" /></td>
+                  <td className="mono">{r.timesEaten}</td>
+                  <td className="mono">{r.dayCount}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
       </div>
 
       <div className="card">
-        <h3 className="card-title">Daily meal log</h3>
+        <h3 className="card-title">Symptom frequency</h3>
+        {symptomTally.length === 0 && <p className="empty-note">No symptoms logged yet.</p>}
+        {symptomTally.length > 0 && (
+          <table className="report-table">
+            <thead><tr><th>Symptom</th><th>Times logged</th><th>Days occurred</th></tr></thead>
+            <tbody>
+              {symptomTally.map((r) => (
+                <tr key={r.name}>
+                  <td>{r.name}</td>
+                  <td className="mono">{r.count}</td>
+                  <td className="mono">{r.dayCount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <div className="card">
+        <h3 className="card-title">Daily timeline</h3>
+        <p className="card-sub">Meals and symptoms in the order they happened, with times as recorded.</p>
         {sortedDates.map((date) => {
           const e = entries[date];
-          if (e.meals.length === 0) return null;
+          const meals = e.meals || [];
+          const logs = e.symptomLogs || [];
+          if (meals.length === 0 && logs.length === 0) return null;
+
+          const events = [
+            ...meals.map((m) => ({
+              kind: "meal",
+              id: m.id,
+              time: m.time,
+              sort: timeToMinutes(m.time) ?? 9999,
+              data: m,
+            })),
+            ...logs.map((l) => ({
+              kind: "symptom",
+              id: l.id,
+              time: l.time,
+              sort: timeToMinutes(l.time) ?? 9999,
+              data: l,
+            })),
+          ].sort((a, b) => a.sort - b.sort);
+
           return (
             <div key={date} className="report-day-block">
               <div className="report-day-head">
@@ -1163,17 +1430,52 @@ function ReportTab({ entries }) {
                   Sleep {e.sleep ?? "—"} · Pain {e.pain ?? "—"} · Stress {e.stress ?? "—"}
                 </span>
               </div>
-              {e.meals.map((m) => (
-                <div className="report-meal-row" key={m.id}>
-                  <span className="report-meal-type">{m.type}{m.time ? ` (${m.time})` : ""}</span>
-                  <span>
-                    {m.items.map((it) => `${it.name} – ${it.sizeLabel}`).join(", ")}
-                  </span>
-                  {m.symptoms.length > 0 && (
-                    <span className="report-meal-symptoms">→ {m.symptoms.join(", ")}</span>
-                  )}
-                </div>
-              ))}
+
+              <div className="timeline">
+                {events.map((ev) => (
+                  <div className={`timeline-row timeline-${ev.kind}`} key={ev.id}>
+                    <span className="timeline-time">{fmtTime12(ev.time) || "—"}</span>
+                    <span className={`timeline-marker marker-${ev.kind}`} />
+                    <div className="timeline-content">
+                      {ev.kind === "meal" ? (
+                        <React.Fragment>
+                          <span className="timeline-label">
+                            {ev.data.type}
+                            {ev.data.flagLevel !== "none" && (
+                              <FlagBadge level={ev.data.flagLevel} reason="" />
+                            )}
+                          </span>
+                          <span className="timeline-detail">
+                            {(ev.data.items || [])
+                              .map((it) => {
+                                const portion = it.sizeLabel || it.amount;
+                                return portion ? `${it.name} (${portion})` : it.name;
+                              })
+                              .join(", ")}
+                          </span>
+                          {ev.data.notes && <span className="timeline-note">{ev.data.notes}</span>}
+                          {ev.data.symptoms && ev.data.symptoms.length > 0 && (
+                            <span className="timeline-note">Noted: {ev.data.symptoms.join(", ")}</span>
+                          )}
+                        </React.Fragment>
+                      ) : (
+                        <React.Fragment>
+                          <span className="timeline-label timeline-label-symptom">
+                            Symptom
+                            {ev.data.severity != null && (
+                              <span className="tag tag-severity" style={{ color: scaleColor(ev.data.severity) }}>
+                                severity {ev.data.severity}
+                              </span>
+                            )}
+                          </span>
+                          <span className="timeline-detail">{(ev.data.symptoms || []).join(", ")}</span>
+                          {ev.data.notes && <span className="timeline-note">{ev.data.notes}</span>}
+                        </React.Fragment>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           );
         })}
@@ -1498,6 +1800,47 @@ function App() {
         .report-meal-row { font-size: 12.5px; padding: 4px 0 4px 10px; border-left: 2px solid var(--line-strong); margin-left: 4px; }
         .report-meal-type { font-weight: 600; margin-right: 8px; }
         .report-meal-symptoms { color: var(--accent); margin-left: 8px; }
+
+        /* Free-text ingredient add */
+        .add-custom-row { background: var(--good-soft); font-weight: 600; color: var(--primary); }
+        .add-custom-row:hover { background: var(--primary-soft); }
+        .add-custom-plus { font-size: 16px; line-height: 1; color: var(--primary); }
+        .add-custom-hint { font-size: 11.5px; font-weight: 400; color: var(--ink-soft); margin-left: auto; }
+        .amount-input { max-width: 320px; font-size: 12.5px; }
+        .partial-note { color: var(--ink-faint); font-style: italic; font-size: 12.5px; }
+
+        /* Symptom logger */
+        .symptom-builder { display: flex; flex-direction: column; gap: 12px; border: 1px dashed var(--line-strong); border-radius: 8px; padding: 16px; background: var(--paper); margin-bottom: 14px; }
+        .symptom-time-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .severity-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .severity-segmented .pill { padding: 5px 10px; font-size: 12px; }
+        .symptom-log-list { display: flex; flex-direction: column; gap: 8px; }
+        .symptom-log-row { display: grid; grid-template-columns: 76px 1fr auto; gap: 12px; align-items: start; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--paper); }
+        .symptom-log-time { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--accent); padding-top: 2px; }
+        .symptom-log-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .tag-severity { background: var(--bg); border: 1px solid var(--line-strong); }
+
+        /* Report timeline */
+        .timeline { display: flex; flex-direction: column; gap: 0; margin-top: 4px; }
+        .timeline-row { display: grid; grid-template-columns: 74px 14px 1fr; gap: 8px; align-items: start; padding: 7px 0; position: relative; }
+        .timeline-row::before { content: ""; position: absolute; left: 80px; top: 0; bottom: 0; width: 1px; background: var(--line); }
+        .timeline-row:first-child::before { top: 12px; }
+        .timeline-row:last-child::before { bottom: calc(100% - 12px); }
+        .timeline-time { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-soft); padding-top: 2px; text-align: right; }
+        .timeline-marker { width: 9px; height: 9px; border-radius: 50%; margin-top: 5px; z-index: 1; border: 2px solid var(--surface); }
+        .marker-meal { background: var(--primary); }
+        .marker-symptom { background: var(--accent); }
+        .timeline-content { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .timeline-label { font-size: 12.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+        .timeline-label-symptom { color: var(--accent); }
+        .timeline-detail { font-size: 12.5px; color: var(--ink); }
+        .timeline-note { font-size: 11.5px; color: var(--ink-soft); font-style: italic; }
+
+        @media (max-width: 600px) {
+          .symptom-log-row { grid-template-columns: 64px 1fr auto; }
+          .timeline-row { grid-template-columns: 62px 14px 1fr; }
+          .timeline-row::before { left: 68px; }
+        }
 
         @media (max-width: 600px) {
           .history-row { grid-template-columns: 1fr; }
