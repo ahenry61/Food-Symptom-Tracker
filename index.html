@@ -56,6 +56,7 @@ const FONT_IMPORTS = `@import url('https://fonts.googleapis.com/css2?family=Frau
    CONSTANTS
 --------------------------------------------------------- */
 const SYMPTOMS = [
+  "Spotting (with period)",
   "Watery diarrhea",
   "Loose stool",
   "Immediate belching",
@@ -117,53 +118,467 @@ function worstFlag(a, b) {
 /* ---------------------------------------------------------
    STARTER FOOD LIBRARY
 --------------------------------------------------------- */
+const CURATED_RAW = [
+["Turkey sausage, breakfast link","Protein",[["Small","1 link",65,5],["Medium","2 x link",130,10],["Large","3 x link",195,15]]],
+["Turkey sausage, breakfast patty","Protein",[["Small","1 patty",90,7],["Medium","2 x patty",180,14],["Large","3 x patty",270,21]]],
+["Pork sausage, breakfast link","Protein",[["Small","1 link",85,4],["Medium","2 x link",170,8],["Large","3 x link",255,12]]],
+["Pork sausage, breakfast patty","Protein",[["Small","1 patty",100,5],["Medium","2 x patty",200,10],["Large","3 x patty",300,15]]],
+["Chicken sausage link","Protein",[["Small","1 link",140,12],["Medium","2 x link",280,24],["Large","3 x link",420,36]]],
+["Turkey bacon","Protein",[["Small","1 slice",35,3],["Medium","2 x slice",70,6],["Large","3 x slice",105,9]]],
+["Pork bacon","Protein",[["Small","1 slice",43,3],["Medium","2 x slice",86,6],["Large","3 x slice",129,9]]],
+["Canadian bacon","Protein",[["Small","1 slice",30,4],["Medium","2 x slice",60,8],["Large","3 x slice",90,12]]],
+["Italian sausage","Protein",[["Small","1 link",230,13],["Medium","2 x link",460,26],["Large","3 x link",690,39]]],
+["Bratwurst","Protein",[["Small","1 link",280,12],["Medium","2 x link",560,24],["Large","3 x link",840,36]]],
+["Chorizo","Protein",[["Small","1 link",260,14],["Medium","2 x link",520,28],["Large","3 x link",780,42]]],
+["Hot dog","Protein",[["Small","1 hot dog",150,5],["Medium","2 x dog",300,10],["Large","3 x dog",450,15]]],
+["Andouille sausage","Protein",[["Small","1 link",200,12],["Medium","2 x link",400,24],["Large","3 x link",600,36]]],
+["Kielbasa","Protein",[["Small","1 link",220,9],["Medium","2 x link",440,18],["Large","3 x link",660,27]]],
+["Chicken breast, boneless","Protein",[["Small","3 oz",141,27],["Medium","4 oz",188,36],["Large","6 oz",282,54]]],
+["Chicken thigh, boneless","Protein",[["Small","3 oz",180,24],["Medium","4 oz",240,32],["Large","6 oz",360,48]]],
+["Chicken wing","Protein",[["Small","3 oz",210,21],["Medium","4 oz",280,28],["Large","6 oz",420,42]]],
+["Rotisserie chicken","Protein",[["Small","3 oz",165,24],["Medium","4 oz",220,32],["Large","6 oz",330,48]]],
+["Ground chicken","Protein",[["Small","3 oz",150,21],["Medium","4 oz",200,28],["Large","6 oz",300,42]]],
+["Ground turkey, 93/7","Protein",[["Small","3 oz",150,21],["Medium","4 oz",200,28],["Large","6 oz",300,42]]],
+["Ground turkey, 99/1","Protein",[["Small","3 oz",102,24],["Medium","4 oz",136,32],["Large","6 oz",204,48]]],
+["Turkey breast, roasted","Protein",[["Small","3 oz",120,24],["Medium","4 oz",160,32],["Large","6 oz",240,48]]],
+["Ground beef, 80/20","Protein",[["Small","3 oz",231,21],["Medium","4 oz",308,28],["Large","6 oz",462,42]]],
+["Ground beef, 90/10","Protein",[["Small","3 oz",180,21],["Medium","4 oz",240,28],["Large","6 oz",360,42]]],
+["Ground beef, 93/7","Protein",[["Small","3 oz",153,24],["Medium","4 oz",204,32],["Large","6 oz",306,48]]],
+["Sirloin steak","Protein",[["Small","3 oz",165,24],["Medium","4 oz",220,32],["Large","6 oz",330,48]]],
+["Ribeye steak","Protein",[["Small","3 oz",240,21],["Medium","4 oz",320,28],["Large","6 oz",480,42]]],
+["Filet mignon","Protein",[["Small","3 oz",180,24],["Medium","4 oz",240,32],["Large","6 oz",360,48]]],
+["Flank steak","Protein",[["Small","3 oz",165,24],["Medium","4 oz",220,32],["Large","6 oz",330,48]]],
+["Beef brisket","Protein",[["Small","3 oz",240,21],["Medium","4 oz",320,28],["Large","6 oz",480,42]]],
+["Pork chop","Protein",[["Small","3 oz",174,24],["Medium","4 oz",232,32],["Large","6 oz",348,48]]],
+["Pork tenderloin","Protein",[["Small","3 oz",120,24],["Medium","4 oz",160,32],["Large","6 oz",240,48]]],
+["Ground pork","Protein",[["Small","3 oz",225,21],["Medium","4 oz",300,28],["Large","6 oz",450,42]]],
+["Pulled pork","Protein",[["Small","3 oz",195,21],["Medium","4 oz",260,28],["Large","6 oz",390,42]]],
+["Ham, sliced","Protein",[["Small","3 oz",105,18],["Medium","4 oz",140,24],["Large","6 oz",210,36]]],
+["Lamb chop","Protein",[["Small","3 oz",210,21],["Medium","4 oz",280,28],["Large","6 oz",420,42]]],
+["Ground lamb","Protein",[["Small","3 oz",240,21],["Medium","4 oz",320,28],["Large","6 oz",480,42]]],
+["Bison, ground","Protein",[["Small","3 oz",135,24],["Medium","4 oz",180,32],["Large","6 oz",270,48]]],
+["Venison","Protein",[["Small","3 oz",120,27],["Medium","4 oz",160,36],["Large","6 oz",240,54]]],
+["Salmon fillet","Protein",[["Small","3 oz",174,18],["Medium","4 oz",232,24],["Large","6 oz",348,36]]],
+["Tilapia","Protein",[["Small","3 oz",108,21],["Medium","4 oz",144,28],["Large","6 oz",216,42]]],
+["Cod","Protein",[["Small","3 oz",90,21],["Medium","4 oz",120,28],["Large","6 oz",180,42]]],
+["Halibut","Protein",[["Small","3 oz",105,21],["Medium","4 oz",140,28],["Large","6 oz",210,42]]],
+["Mahi mahi","Protein",[["Small","3 oz",90,21],["Medium","4 oz",120,28],["Large","6 oz",180,42]]],
+["Trout","Protein",[["Small","3 oz",126,21],["Medium","4 oz",168,28],["Large","6 oz",252,42]]],
+["Tuna steak","Protein",[["Small","3 oz",105,24],["Medium","4 oz",140,32],["Large","6 oz",210,48]]],
+["Canned tuna, in water","Protein",[["Small","3 oz",99,21],["Medium","4 oz",132,28],["Large","6 oz",198,42]]],
+["Canned salmon","Protein",[["Small","3 oz",120,21],["Medium","4 oz",160,28],["Large","6 oz",240,42]]],
+["Sardines, canned","Protein",[["Small","3 oz",180,21],["Medium","4 oz",240,28],["Large","6 oz",360,42]]],
+["Shrimp","Protein",[["Small","3 oz",84,18],["Medium","4 oz",112,24],["Large","6 oz",168,36]]],
+["Scallops","Protein",[["Small","3 oz",78,15],["Medium","4 oz",104,20],["Large","6 oz",156,30]]],
+["Crab meat","Protein",[["Small","3 oz",75,15],["Medium","4 oz",100,20],["Large","6 oz",150,30]]],
+["Lobster","Protein",[["Small","3 oz",78,18],["Medium","4 oz",104,24],["Large","6 oz",156,36]]],
+["Mussels","Protein",[["Small","3 oz",120,18],["Medium","4 oz",160,24],["Large","6 oz",240,36]]],
+["Tofu, firm","Protein",[["Small","3 oz",120,12],["Medium","4 oz",160,16],["Large","6 oz",240,24]]],
+["Tempeh","Protein",[["Small","3 oz",165,15],["Medium","4 oz",220,20],["Large","6 oz",330,30]]],
+["Egg, whole large","Protein",[["Small","1 egg",70,6],["Medium","2 x egg",140,12],["Large","3 x egg",210,18]]],
+["Egg white","Protein",[["Small","1 white",17,4],["Medium","2 x white",34,8],["Large","3 x white",51,12]]],
+["Egg yolk","Protein",[["Small","1 yolk",55,3],["Medium","2 x yolk",110,6],["Large","3 x yolk",165,9]]],
+["Lentils, cooked","Carb",[["Small","1/2 cup cooked",115,9],["Medium","1 cup cooked",230,18],["Large","1.5 cup cooked",345,27]]],
+["Black beans, cooked","Carb",[["Small","1/2 cup cooked",114,7.5],["Medium","1 cup cooked",227,15],["Large","1.5 cup cooked",340,22.5]]],
+["Chickpeas, cooked","Carb",[["Small","1/2 cup cooked",134,7.5],["Medium","1 cup cooked",269,15],["Large","1.5 cup cooked",404,22.5]]],
+["Kidney beans, cooked","Carb",[["Small","1/2 cup cooked",112,7.5],["Medium","1 cup cooked",225,15],["Large","1.5 cup cooked",338,22.5]]],
+["Pinto beans, cooked","Carb",[["Small","1/2 cup cooked",122,7.5],["Medium","1 cup cooked",245,15],["Large","1.5 cup cooked",368,22.5]]],
+["Edamame, shelled","Carb",[["Small","1/2 cup cooked",95,9],["Medium","1 cup cooked",190,18],["Large","1.5 cup cooked",285,27]]],
+["Protein powder, whey","Protein",[["Small","1/2 scoop",60,12],["Medium","1 scoop",120,24],["Large","2 scoops",240,48]]],
+["Protein powder, plant","Protein",[["Small","1/2 scoop",60,10],["Medium","1 scoop",120,21],["Large","2 scoops",240,42]]],
+["Protein bar","Protein",[["Small","1 bar",200,20],["Medium","2 x bar",400,40],["Large","3 x bar",600,60]]],
+["Beef jerky","Protein",[["Small","1 oz",80,9],["Medium","2 x oz",160,18],["Large","3 x oz",240,27]]],
+["Salt","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Black pepper","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Garlic powder","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Onion powder","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Paprika","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Smoked paprika","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Cumin","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Ground coriander","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Turmeric","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Ground ginger","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Cinnamon","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Nutmeg","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Ground cloves","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Allspice","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Cardamom","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Oregano, dried","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Basil, dried","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Thyme, dried","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Rosemary, dried","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Sage, dried","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Parsley, dried","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Dill, dried","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Bay leaf","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Chili powder","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Cayenne pepper","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Red pepper flakes","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Curry powder","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Garam masala","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Italian seasoning","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Everything bagel seasoning","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Poultry seasoning","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Taco seasoning","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Old Bay seasoning","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Za'atar","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Herbes de Provence","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Mustard powder","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Fennel seed","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Caraway seed","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Celery salt","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["White pepper","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Lemon pepper","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Ranch seasoning","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Cajun seasoning","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Jerk seasoning","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Five spice powder","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Sumac","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Saffron","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Vanilla bean","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Nutritional yeast","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["MSG","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,1]]],
+["Garlic, fresh clove","Spice",[["Small","1 tsp / 1 clove",4,0],["Medium","1 tbsp",12,0],["Large","1/4 cup",48,1]]],
+["Ginger root, fresh","Spice",[["Small","1 tsp / 1 clove",5,0],["Medium","1 tbsp",15,0],["Large","1/4 cup",60,1]]],
+["Basil, fresh","Spice",[["Small","1 tsp / 1 clove",1,0],["Medium","1 tbsp",3,0],["Large","1/4 cup",12,1]]],
+["Cilantro, fresh","Spice",[["Small","1 tsp / 1 clove",1,0],["Medium","1 tbsp",3,0],["Large","1/4 cup",12,1]]],
+["Parsley, fresh","Spice",[["Small","1 tsp / 1 clove",1,0],["Medium","1 tbsp",3,0],["Large","1/4 cup",12,1]]],
+["Mint, fresh","Spice",[["Small","1 tsp / 1 clove",1,0],["Medium","1 tbsp",3,0],["Large","1/4 cup",12,1]]],
+["Dill, fresh","Spice",[["Small","1 tsp / 1 clove",1,0],["Medium","1 tbsp",3,0],["Large","1/4 cup",12,1]]],
+["Rosemary, fresh","Spice",[["Small","1 tsp / 1 clove",2,0],["Medium","1 tbsp",6,0],["Large","1/4 cup",24,1]]],
+["Thyme, fresh","Spice",[["Small","1 tsp / 1 clove",1,0],["Medium","1 tbsp",3,0],["Large","1/4 cup",12,1]]],
+["Sage, fresh","Spice",[["Small","1 tsp / 1 clove",2,0],["Medium","1 tbsp",6,0],["Large","1/4 cup",24,1]]],
+["Chives, fresh","Spice",[["Small","1 tsp / 1 clove",1,0],["Medium","1 tbsp",3,0],["Large","1/4 cup",12,1]]],
+["Scallion / green onion","Spice",[["Small","1 tsp / 1 clove",5,0],["Medium","1 tbsp",15,0],["Large","1/4 cup",60,1]]],
+["Lemongrass","Spice",[["Small","1 tsp / 1 clove",5,0],["Medium","1 tbsp",15,0],["Large","1/4 cup",60,1]]],
+["Jalapeño, fresh","Spice",[["Small","1 tsp / 1 clove",4,0],["Medium","1 tbsp",12,0],["Large","1/4 cup",48,1]]],
+["Serrano pepper","Spice",[["Small","1 tsp / 1 clove",2,0],["Medium","1 tbsp",6,0],["Large","1/4 cup",24,1]]],
+["Habanero","Spice",[["Small","1 tsp / 1 clove",6,0],["Medium","1 tbsp",18,0],["Large","1/4 cup",72,1]]],
+["Horseradish, fresh","Spice",[["Small","1 tsp / 1 clove",7,0],["Medium","1 tbsp",21,0],["Large","1/4 cup",84,1]]],
+["Ketchup","Condiment",[["1 tsp","1 tsp",7,0],["1 tbsp","1 tbsp",20,0],["2 tbsp","2 tbsp",40,0]]],
+["Yellow mustard","Condiment",[["1 tsp","1 tsp",1,0],["1 tbsp","1 tbsp",3,0],["2 tbsp","2 tbsp",6,0]]],
+["Dijon mustard","Condiment",[["1 tsp","1 tsp",2,0],["1 tbsp","1 tbsp",5,0],["2 tbsp","2 tbsp",10,0]]],
+["Honey mustard","Condiment",[["1 tsp","1 tsp",10,0],["1 tbsp","1 tbsp",30,0],["2 tbsp","2 tbsp",60,0]]],
+["Mayonnaise","Condiment",[["1 tsp","1 tsp",32,0],["1 tbsp","1 tbsp",95,0],["2 tbsp","2 tbsp",190,0]]],
+["Ranch dressing","Condiment",[["1 tsp","1 tsp",25,0],["1 tbsp","1 tbsp",75,0],["2 tbsp","2 tbsp",150,0]]],
+["Blue cheese dressing","Condiment",[["1 tsp","1 tsp",25,0],["1 tbsp","1 tbsp",75,0],["2 tbsp","2 tbsp",150,0]]],
+["Caesar dressing","Condiment",[["1 tsp","1 tsp",27,0],["1 tbsp","1 tbsp",80,0],["2 tbsp","2 tbsp",160,0]]],
+["Italian dressing","Condiment",[["1 tsp","1 tsp",15,0],["1 tbsp","1 tbsp",45,0],["2 tbsp","2 tbsp",90,0]]],
+["Balsamic vinaigrette","Condiment",[["1 tsp","1 tsp",15,0],["1 tbsp","1 tbsp",45,0],["2 tbsp","2 tbsp",90,0]]],
+["BBQ sauce","Condiment",[["1 tsp","1 tsp",10,0],["1 tbsp","1 tbsp",30,0],["2 tbsp","2 tbsp",60,0]]],
+["Hot sauce","Condiment",[["1 tsp","1 tsp",0,0],["1 tbsp","1 tbsp",1,0],["2 tbsp","2 tbsp",2,0]]],
+["Sriracha","Condiment",[["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,0],["2 tbsp","2 tbsp",30,0]]],
+["Buffalo sauce","Condiment",[["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,0],["2 tbsp","2 tbsp",30,0]]],
+["Soy sauce","Condiment",[["1 tsp","1 tsp",3,0.3],["1 tbsp","1 tbsp",8,1],["2 tbsp","2 tbsp",16,2]]],
+["Coconut aminos","Condiment",[["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",15,0],["2 tbsp","2 tbsp",30,0]]],
+["Worcestershire sauce","Condiment",[["1 tsp","1 tsp",4,0],["1 tbsp","1 tbsp",13,0],["2 tbsp","2 tbsp",26,0]]],
+["Fish sauce","Condiment",[["1 tsp","1 tsp",2,0.3],["1 tbsp","1 tbsp",6,1],["2 tbsp","2 tbsp",12,2]]],
+["Teriyaki sauce","Condiment",[["1 tsp","1 tsp",10,0],["1 tbsp","1 tbsp",30,0],["2 tbsp","2 tbsp",60,0]]],
+["Oyster sauce","Condiment",[["1 tsp","1 tsp",8,0],["1 tbsp","1 tbsp",25,0],["2 tbsp","2 tbsp",50,0]]],
+["Hoisin sauce","Condiment",[["1 tsp","1 tsp",12,0],["1 tbsp","1 tbsp",35,0],["2 tbsp","2 tbsp",70,0]]],
+["Salsa","Condiment",[["1 tsp","1 tsp",2,0],["1 tbsp","1 tbsp",5,0],["2 tbsp","2 tbsp",10,0]]],
+["Pico de gallo","Condiment",[["1 tsp","1 tsp",2,0],["1 tbsp","1 tbsp",5,0],["2 tbsp","2 tbsp",10,0]]],
+["Guacamole","Condiment",[["1 tsp","1 tsp",15,0.2],["1 tbsp","1 tbsp",45,0.5],["2 tbsp","2 tbsp",90,1]]],
+["Hummus","Condiment",[["1 tsp","1 tsp",12,0.4],["1 tbsp","1 tbsp",35,1.2],["2 tbsp","2 tbsp",70,2.4]]],
+["Tzatziki","Condiment",[["1 tsp","1 tsp",7,0.3],["1 tbsp","1 tbsp",20,1],["2 tbsp","2 tbsp",40,2]]],
+["Pesto","Condiment",[["1 tsp","1 tsp",27,0.7],["1 tbsp","1 tbsp",80,2],["2 tbsp","2 tbsp",160,4]]],
+["Marinara sauce","Condiment",[["1 tsp","1 tsp",7,0.2],["1 tbsp","1 tbsp",20,0.7],["2 tbsp","2 tbsp",40,1.4]]],
+["Alfredo sauce","Condiment",[["1 tsp","1 tsp",18,0.3],["1 tbsp","1 tbsp",55,1],["2 tbsp","2 tbsp",110,2]]],
+["Tomato paste","Condiment",[["1 tsp","1 tsp",4,0.2],["1 tbsp","1 tbsp",13,0.7],["2 tbsp","2 tbsp",26,1.4]]],
+["Tahini","Condiment",[["1 tsp","1 tsp",30,0.9],["1 tbsp","1 tbsp",90,2.6],["2 tbsp","2 tbsp",180,5.2]]],
+["Balsamic vinegar","Condiment",[["1 tsp","1 tsp",5,0],["1 tbsp","1 tbsp",14,0],["2 tbsp","2 tbsp",28,0]]],
+["Apple cider vinegar","Condiment",[["1 tsp","1 tsp",1,0],["1 tbsp","1 tbsp",3,0],["2 tbsp","2 tbsp",6,0]]],
+["Red wine vinegar","Condiment",[["1 tsp","1 tsp",1,0],["1 tbsp","1 tbsp",3,0],["2 tbsp","2 tbsp",6,0]]],
+["Rice vinegar","Condiment",[["1 tsp","1 tsp",1,0],["1 tbsp","1 tbsp",3,0],["2 tbsp","2 tbsp",6,0]]],
+["Lemon juice","Condiment",[["1 tsp","1 tsp",1,0],["1 tbsp","1 tbsp",4,0],["2 tbsp","2 tbsp",8,0]]],
+["Lime juice","Condiment",[["1 tsp","1 tsp",1,0],["1 tbsp","1 tbsp",4,0],["2 tbsp","2 tbsp",8,0]]],
+["Relish","Condiment",[["1 tsp","1 tsp",7,0],["1 tbsp","1 tbsp",20,0],["2 tbsp","2 tbsp",40,0]]],
+["Tartar sauce","Condiment",[["1 tsp","1 tsp",23,0],["1 tbsp","1 tbsp",70,0],["2 tbsp","2 tbsp",140,0]]],
+["Cocktail sauce","Condiment",[["1 tsp","1 tsp",8,0],["1 tbsp","1 tbsp",25,0],["2 tbsp","2 tbsp",50,0]]],
+["Gravy","Condiment",[["1 tsp","1 tsp",5,0.2],["1 tbsp","1 tbsp",15,0.5],["2 tbsp","2 tbsp",30,1]]],
+["Cream cheese","Condiment",[["1 tsp","1 tsp",17,0.3],["1 tbsp","1 tbsp",50,1],["2 tbsp","2 tbsp",100,2]]],
+["Sour cream","Condiment",[["1 tsp","1 tsp",10,0.2],["1 tbsp","1 tbsp",30,0.5],["2 tbsp","2 tbsp",60,1]]],
+["Greek yogurt, plain (as topping)","Condiment",[["1 tsp","1 tsp",3,0.6],["1 tbsp","1 tbsp",10,1.7],["2 tbsp","2 tbsp",20,3.4]]],
+["Olive oil","Fat",[["1 tsp","1 tsp",40,0],["1 tbsp","1 tbsp",120,0],["2 tbsp","2 tbsp",240,0]]],
+["Extra virgin olive oil","Fat",[["1 tsp","1 tsp",40,0],["1 tbsp","1 tbsp",120,0],["2 tbsp","2 tbsp",240,0]]],
+["Avocado oil","Fat",[["1 tsp","1 tsp",41,0],["1 tbsp","1 tbsp",124,0],["2 tbsp","2 tbsp",248,0]]],
+["Coconut oil","Fat",[["1 tsp","1 tsp",39,0],["1 tbsp","1 tbsp",117,0],["2 tbsp","2 tbsp",234,0]]],
+["Canola oil","Fat",[["1 tsp","1 tsp",41,0],["1 tbsp","1 tbsp",124,0],["2 tbsp","2 tbsp",248,0]]],
+["Vegetable oil","Fat",[["1 tsp","1 tsp",40,0],["1 tbsp","1 tbsp",120,0],["2 tbsp","2 tbsp",240,0]]],
+["Sesame oil","Fat",[["1 tsp","1 tsp",40,0],["1 tbsp","1 tbsp",120,0],["2 tbsp","2 tbsp",240,0]]],
+["Peanut oil","Fat",[["1 tsp","1 tsp",40,0],["1 tbsp","1 tbsp",119,0],["2 tbsp","2 tbsp",238,0]]],
+["Grapeseed oil","Fat",[["1 tsp","1 tsp",40,0],["1 tbsp","1 tbsp",120,0],["2 tbsp","2 tbsp",240,0]]],
+["Sunflower oil","Fat",[["1 tsp","1 tsp",40,0],["1 tbsp","1 tbsp",120,0],["2 tbsp","2 tbsp",240,0]]],
+["Ghee","Fat",[["1 tsp","1 tsp",37,0],["1 tbsp","1 tbsp",112,0],["2 tbsp","2 tbsp",224,0]]],
+["Butter","Fat",[["1 tsp","1 tsp",34,0],["1 tbsp","1 tbsp",102,0],["2 tbsp","2 tbsp",204,0]]],
+["Butter, salted","Fat",[["1 tsp","1 tsp",34,0],["1 tbsp","1 tbsp",102,0],["2 tbsp","2 tbsp",204,0]]],
+["Margarine","Fat",[["1 tsp","1 tsp",33,0],["1 tbsp","1 tbsp",100,0],["2 tbsp","2 tbsp",200,0]]],
+["Cooking spray","Fat",[["1 tsp","1 tsp",2,0],["1 tbsp","1 tbsp",5,0],["2 tbsp","2 tbsp",10,0]]],
+["Bacon grease","Fat",[["1 tsp","1 tsp",38,0],["1 tbsp","1 tbsp",115,0],["2 tbsp","2 tbsp",230,0]]],
+["Lard","Fat",[["1 tsp","1 tsp",38,0],["1 tbsp","1 tbsp",115,0],["2 tbsp","2 tbsp",230,0]]],
+["Maple syrup, pure","Sweetener",[["1 tsp","1 tsp",17,0],["1 tbsp","1 tbsp",52,0],["2 tbsp","2 tbsp",104,0]]],
+["Honey","Sweetener",[["1 tsp","1 tsp",21,0],["1 tbsp","1 tbsp",64,0],["2 tbsp","2 tbsp",128,0]]],
+["Agave nectar","Sweetener",[["1 tsp","1 tsp",20,0],["1 tbsp","1 tbsp",60,0],["2 tbsp","2 tbsp",120,0]]],
+["Brown sugar","Sweetener",[["1 tsp","1 tsp",17,0],["1 tbsp","1 tbsp",52,0],["2 tbsp","2 tbsp",104,0]]],
+["White sugar","Sweetener",[["1 tsp","1 tsp",16,0],["1 tbsp","1 tbsp",48,0],["2 tbsp","2 tbsp",96,0]]],
+["Coconut sugar","Sweetener",[["1 tsp","1 tsp",15,0],["1 tbsp","1 tbsp",45,0],["2 tbsp","2 tbsp",90,0]]],
+["Molasses","Sweetener",[["1 tsp","1 tsp",19,0],["1 tbsp","1 tbsp",58,0],["2 tbsp","2 tbsp",116,0]]],
+["Powdered sugar","Sweetener",[["1 tsp","1 tsp",10,0],["1 tbsp","1 tbsp",30,0],["2 tbsp","2 tbsp",60,0]]],
+["Stevia","Sweetener",[["1 tsp","1 tsp",0,0],["1 tbsp","1 tbsp",0,0],["2 tbsp","2 tbsp",0,0]]],
+["Monk fruit sweetener","Sweetener",[["1 tsp","1 tsp",0,0],["1 tbsp","1 tbsp",0,0],["2 tbsp","2 tbsp",0,0]]],
+["Erythritol","Sweetener",[["1 tsp","1 tsp",1,0],["1 tbsp","1 tbsp",4,0],["2 tbsp","2 tbsp",8,0]]],
+["Chocolate chips","Sweetener",[["1 tsp","1 tsp",23,0.3],["1 tbsp","1 tbsp",70,1],["2 tbsp","2 tbsp",140,2]]],
+["Cocoa powder","Sweetener",[["1 tsp","1 tsp",4,0.3],["1 tbsp","1 tbsp",12,1],["2 tbsp","2 tbsp",24,2]]],
+["Jam / jelly","Sweetener",[["1 tsp","1 tsp",17,0],["1 tbsp","1 tbsp",50,0],["2 tbsp","2 tbsp",100,0]]],
+["Nutella","Sweetener",[["1 tsp","1 tsp",33,0.3],["1 tbsp","1 tbsp",100,1],["2 tbsp","2 tbsp",200,2]]],
+["Onion, yellow","Vegetable",[["Small","1/2 cup",32,1],["Medium","1 cup",64,2],["Large","1.5 cup",96,3]]],
+["Onion, red","Vegetable",[["Small","1/2 cup",32,1],["Medium","1 cup",64,2],["Large","1.5 cup",96,3]]],
+["Shallot","Vegetable",[["Small","1/2 cup",58,2],["Medium","1 cup",115,4],["Large","1.5 cup",172,6]]],
+["Bell pepper, red","Vegetable",[["Small","1/2 cup",20,0.8],["Medium","1 cup",39,1.5],["Large","1.5 cup",58,2.2]]],
+["Bell pepper, green","Vegetable",[["Small","1/2 cup",15,0.7],["Medium","1 cup",30,1.3],["Large","1.5 cup",45,2]]],
+["Carrot","Vegetable",[["Small","1/2 cup",26,0.6],["Medium","1 cup",52,1.2],["Large","1.5 cup",78,1.8]]],
+["Celery","Vegetable",[["Small","1/2 cup",8,0.3],["Medium","1 cup",16,0.7],["Large","1.5 cup",24,1]]],
+["Broccoli","Vegetable",[["Small","1/2 cup",28,2],["Medium","1 cup",55,4],["Large","1.5 cup",82,6]]],
+["Cauliflower","Vegetable",[["Small","1/2 cup",14,1],["Medium","1 cup",27,2],["Large","1.5 cup",40,3]]],
+["Cauliflower rice","Vegetable",[["Small","1/2 cup",12,1],["Medium","1 cup",25,2],["Large","1.5 cup",38,3]]],
+["Spinach, raw","Vegetable",[["Small","1/2 cup",4,0.5],["Medium","1 cup",7,1],["Large","1.5 cup",10,1.5]]],
+["Spinach, cooked","Vegetable",[["Small","1/2 cup",20,2.5],["Medium","1 cup",41,5],["Large","1.5 cup",62,7.5]]],
+["Kale","Vegetable",[["Small","1/2 cup",16,1.5],["Medium","1 cup",33,3],["Large","1.5 cup",50,4.5]]],
+["Romaine lettuce","Vegetable",[["Small","1/2 cup",4,0.3],["Medium","1 cup",8,0.6],["Large","1.5 cup",12,0.9]]],
+["Mixed greens","Vegetable",[["Small","1/2 cup",4,0.4],["Medium","1 cup",9,0.8],["Large","1.5 cup",14,1.2]]],
+["Arugula","Vegetable",[["Small","1/2 cup",2,0.2],["Medium","1 cup",5,0.5],["Large","1.5 cup",8,0.8]]],
+["Cucumber","Vegetable",[["Small","1/2 cup",8,0.3],["Medium","1 cup",16,0.7],["Large","1.5 cup",24,1]]],
+["Tomato, fresh","Vegetable",[["Small","1/2 cup",16,0.8],["Medium","1 cup",32,1.6],["Large","1.5 cup",48,2.4]]],
+["Cherry tomatoes","Vegetable",[["Small","1/2 cup",14,0.7],["Medium","1 cup",27,1.3],["Large","1.5 cup",40,2]]],
+["Sun-dried tomatoes","Vegetable",[["Small","1/2 cup",70,4],["Medium","1 cup",139,8],["Large","1.5 cup",208,12]]],
+["Zucchini","Vegetable",[["Small","1/2 cup",10,0.8],["Medium","1 cup",20,1.5],["Large","1.5 cup",30,2.2]]],
+["Yellow squash","Vegetable",[["Small","1/2 cup",9,0.7],["Medium","1 cup",18,1.4],["Large","1.5 cup",27,2.1]]],
+["Butternut squash","Vegetable",[["Small","1/2 cup",41,0.9],["Medium","1 cup",82,1.8],["Large","1.5 cup",123,2.7]]],
+["Spaghetti squash","Vegetable",[["Small","1/2 cup",21,0.5],["Medium","1 cup",42,1],["Large","1.5 cup",63,1.5]]],
+["Acorn squash","Vegetable",[["Small","1/2 cup",28,0.6],["Medium","1 cup",56,1.1],["Large","1.5 cup",84,1.7]]],
+["Mushrooms, white","Vegetable",[["Small","1/2 cup",10,1.5],["Medium","1 cup",21,3],["Large","1.5 cup",32,4.5]]],
+["Mushrooms, portobello","Vegetable",[["Small","1/2 cup",11,1],["Medium","1 cup",22,2],["Large","1.5 cup",33,3]]],
+["Mushrooms, shiitake","Vegetable",[["Small","1/2 cup",17,1],["Medium","1 cup",34,2],["Large","1.5 cup",51,3]]],
+["Green beans","Vegetable",[["Small","1/2 cup",16,0.9],["Medium","1 cup",31,1.8],["Large","1.5 cup",46,2.7]]],
+["Asparagus","Vegetable",[["Small","1/2 cup",14,1.5],["Medium","1 cup",27,3],["Large","1.5 cup",40,4.5]]],
+["Brussels sprouts","Vegetable",[["Small","1/2 cup",19,1.5],["Medium","1 cup",38,3],["Large","1.5 cup",57,4.5]]],
+["Cabbage, green","Vegetable",[["Small","1/2 cup",11,0.5],["Medium","1 cup",22,1],["Large","1.5 cup",33,1.5]]],
+["Cabbage, red","Vegetable",[["Small","1/2 cup",14,0.7],["Medium","1 cup",28,1.3],["Large","1.5 cup",42,2]]],
+["Bok choy","Vegetable",[["Small","1/2 cup",4,0.5],["Medium","1 cup",9,1],["Large","1.5 cup",14,1.5]]],
+["Peas, green","Vegetable",[["Small","1/2 cup",59,4],["Medium","1 cup",118,8],["Large","1.5 cup",177,12]]],
+["Snap peas","Vegetable",[["Small","1/2 cup",14,1],["Medium","1 cup",27,2],["Large","1.5 cup",40,3]]],
+["Corn kernels","Vegetable",[["Small","1/2 cup",66,2.5],["Medium","1 cup",132,5],["Large","1.5 cup",198,7.5]]],
+["Beets","Vegetable",[["Small","1/2 cup",30,1.1],["Medium","1 cup",59,2.2],["Large","1.5 cup",88,3.3]]],
+["Radish","Vegetable",[["Small","1/2 cup",10,0.4],["Medium","1 cup",19,0.8],["Large","1.5 cup",28,1.2]]],
+["Turnip","Vegetable",[["Small","1/2 cup",18,0.6],["Medium","1 cup",36,1.2],["Large","1.5 cup",54,1.8]]],
+["Parsnip","Vegetable",[["Small","1/2 cup",50,0.8],["Medium","1 cup",100,1.6],["Large","1.5 cup",150,2.4]]],
+["Eggplant","Vegetable",[["Small","1/2 cup",18,0.5],["Medium","1 cup",35,1],["Large","1.5 cup",52,1.5]]],
+["Leek","Vegetable",[["Small","1/2 cup",27,0.7],["Medium","1 cup",54,1.3],["Large","1.5 cup",81,2]]],
+["Fennel bulb","Vegetable",[["Small","1/2 cup",14,0.6],["Medium","1 cup",27,1.1],["Large","1.5 cup",40,1.7]]],
+["Artichoke hearts","Vegetable",[["Small","1/2 cup",22,1.5],["Medium","1 cup",45,3],["Large","1.5 cup",68,4.5]]],
+["Okra","Vegetable",[["Small","1/2 cup",16,1],["Medium","1 cup",33,2],["Large","1.5 cup",50,3]]],
+["Swiss chard","Vegetable",[["Small","1/2 cup",4,0.3],["Medium","1 cup",7,0.7],["Large","1.5 cup",10,1]]],
+["Collard greens","Vegetable",[["Small","1/2 cup",6,0.5],["Medium","1 cup",11,1],["Large","1.5 cup",16,1.5]]],
+["Bean sprouts","Vegetable",[["Small","1/2 cup",16,1.5],["Medium","1 cup",31,3],["Large","1.5 cup",46,4.5]]],
+["Water chestnuts","Vegetable",[["Small","1/2 cup",30,0.5],["Medium","1 cup",60,1],["Large","1.5 cup",90,1.5]]],
+["Coleslaw mix","Vegetable",[["Small","1/2 cup",10,0.5],["Medium","1 cup",20,1],["Large","1.5 cup",30,1.5]]],
+["Sauerkraut","Vegetable",[["Small","1/2 cup",14,0.7],["Medium","1 cup",27,1.3],["Large","1.5 cup",40,2]]],
+["Kimchi","Vegetable",[["Small","1/2 cup",12,0.8],["Medium","1 cup",23,1.7],["Large","1.5 cup",34,2.5]]],
+["Pickles, dill","Vegetable",[["Small","1/2 cup",8,0.4],["Medium","1 cup",17,0.8],["Large","1.5 cup",26,1.2]]],
+["Olives, green","Vegetable",[["Small","1/2 cup",78,0.6],["Medium","1 cup",155,1.1],["Large","1.5 cup",232,1.7]]],
+["Olives, kalamata","Vegetable",[["Small","1/2 cup",80,0.6],["Medium","1 cup",160,1.2],["Large","1.5 cup",240,1.8]]],
+["Potato, russet","Vegetable",[["Small","1 small",130,3],["Medium","1 medium",165,4],["Large","1 large",280,7]]],
+["Potato, red","Vegetable",[["Small","1 small",120,3],["Medium","1 medium",150,4],["Large","1 large",260,6]]],
+["Sweet potato","Vegetable",[["Small","1 small",100,2],["Medium","1 medium",180,4],["Large","1 large",260,5]]],
+["Avocado","Fat",[["Small","1/4",60,1],["Medium","1/2",120,2],["Large","1 whole",240,3]]],
+["Apple","Fruit",[["Small","small medium",71,1],["Medium","1 medium",95,1],["Large","large medium",124,1]]],
+["Banana","Fruit",[["Small","small medium",79,1],["Medium","1 medium",105,1],["Large","large medium",136,1]]],
+["Orange","Fruit",[["Small","small medium",46,1],["Medium","1 medium",62,1],["Large","large medium",81,1]]],
+["Pear","Fruit",[["Small","small medium",75,1],["Medium","1 medium",100,1],["Large","large medium",130,1]]],
+["Peach","Fruit",[["Small","small medium",44,1],["Medium","1 medium",59,1],["Large","large medium",77,1]]],
+["Plum","Fruit",[["Small","small medium",22,1],["Medium","1 medium",30,1],["Large","large medium",39,1]]],
+["Nectarine","Fruit",[["Small","small medium",46,1],["Medium","1 medium",62,1],["Large","large medium",81,1]]],
+["Apricot","Fruit",[["Small","small medium",13,1],["Medium","1 medium",17,1],["Large","large medium",22,1]]],
+["Kiwi","Fruit",[["Small","small medium",32,1],["Medium","1 medium",42,1],["Large","large medium",55,1]]],
+["Mango","Fruit",[["Small","small whole",150,1],["Medium","1 whole",200,1],["Large","large whole",260,1]]],
+["Grapefruit","Fruit",[["Small","small fruit",39,1],["Medium","1/2 fruit",52,1],["Large","large fruit",68,1]]],
+["Lemon","Fruit",[["Small","small medium",13,1],["Medium","1 medium",17,1],["Large","large medium",22,1]]],
+["Lime","Fruit",[["Small","small medium",15,1],["Medium","1 medium",20,1],["Large","large medium",26,1]]],
+["Clementine","Fruit",[["Small","small medium",26,1],["Medium","1 medium",35,1],["Large","large medium",46,1]]],
+["Strawberries","Vegetable",[["Small","1/2 cup",24,0.5],["Medium","1 cup",49,1],["Large","1.5 cup",74,1.5]]],
+["Blueberries","Vegetable",[["Small","1/2 cup",42,0.5],["Medium","1 cup",84,1],["Large","1.5 cup",126,1.5]]],
+["Raspberries","Vegetable",[["Small","1/2 cup",32,0.8],["Medium","1 cup",64,1.5],["Large","1.5 cup",96,2.2]]],
+["Blackberries","Vegetable",[["Small","1/2 cup",31,1],["Medium","1 cup",62,2],["Large","1.5 cup",93,3]]],
+["Grapes","Vegetable",[["Small","1/2 cup",52,0.5],["Medium","1 cup",104,1],["Large","1.5 cup",156,1.5]]],
+["Cherries","Vegetable",[["Small","1/2 cup",44,0.8],["Medium","1 cup",87,1.5],["Large","1.5 cup",130,2.2]]],
+["Pineapple, chunks","Vegetable",[["Small","1/2 cup",41,0.5],["Medium","1 cup",82,0.9],["Large","1.5 cup",123,1.4]]],
+["Watermelon, cubed","Vegetable",[["Small","1/2 cup",23,0.5],["Medium","1 cup",46,0.9],["Large","1.5 cup",69,1.4]]],
+["Cantaloupe, cubed","Vegetable",[["Small","1/2 cup",27,0.7],["Medium","1 cup",54,1.3],["Large","1.5 cup",81,2]]],
+["Honeydew, cubed","Vegetable",[["Small","1/2 cup",30,0.5],["Medium","1 cup",61,0.9],["Large","1.5 cup",92,1.4]]],
+["Pomegranate seeds","Vegetable",[["Small","1/2 cup",72,1.5],["Medium","1 cup",144,3],["Large","1.5 cup",216,4.5]]],
+["Cranberries, fresh","Vegetable",[["Small","1/2 cup",23,0.2],["Medium","1 cup",46,0.4],["Large","1.5 cup",69,0.6]]],
+["Raisins","Fruit",[["1 tsp","1 tsp",28,0.3],["1 tbsp","1 tbsp",85,1],["2 tbsp","2 tbsp",170,2]]],
+["Dates, chopped","Fruit",[["1 tsp","1 tsp",27,0.2],["1 tbsp","1 tbsp",80,0.7],["2 tbsp","2 tbsp",160,1.4]]],
+["Dried cranberries","Fruit",[["1 tsp","1 tsp",30,0],["1 tbsp","1 tbsp",90,0],["2 tbsp","2 tbsp",180,0]]],
+["Applesauce","Fruit",[["1 tsp","1 tsp",8,0],["1 tbsp","1 tbsp",25,0],["2 tbsp","2 tbsp",50,0]]],
+["White rice","Carb",[["Small","1/2 cup cooked",102,2],["Medium","1 cup cooked",205,4],["Large","1.5 cup cooked",308,6]]],
+["Brown rice","Carb",[["Small","1/2 cup cooked",108,2.5],["Medium","1 cup cooked",216,5],["Large","1.5 cup cooked",324,7.5]]],
+["Jasmine rice","Carb",[["Small","1/2 cup cooked",102,2],["Medium","1 cup cooked",205,4],["Large","1.5 cup cooked",308,6]]],
+["Basmati rice","Carb",[["Small","1/2 cup cooked",105,2],["Medium","1 cup cooked",210,4],["Large","1.5 cup cooked",315,6]]],
+["Wild rice","Carb",[["Small","1/2 cup cooked",83,3.2],["Medium","1 cup cooked",166,6.5],["Large","1.5 cup cooked",249,9.8]]],
+["Quinoa","Carb",[["Small","1/2 cup cooked",111,4],["Medium","1 cup cooked",222,8],["Large","1.5 cup cooked",333,12]]],
+["Couscous","Carb",[["Small","1/2 cup cooked",88,3],["Medium","1 cup cooked",176,6],["Large","1.5 cup cooked",264,9]]],
+["Farro","Carb",[["Small","1/2 cup cooked",100,3.5],["Medium","1 cup cooked",200,7],["Large","1.5 cup cooked",300,10.5]]],
+["Barley","Carb",[["Small","1/2 cup cooked",96,1.8],["Medium","1 cup cooked",193,3.5],["Large","1.5 cup cooked",290,5.2]]],
+["Bulgur","Carb",[["Small","1/2 cup cooked",76,2.8],["Medium","1 cup cooked",151,5.6],["Large","1.5 cup cooked",226,8.4]]],
+["Millet","Carb",[["Small","1/2 cup cooked",104,3],["Medium","1 cup cooked",207,6],["Large","1.5 cup cooked",310,9]]],
+["Polenta / grits","Carb",[["Small","1/2 cup cooked",72,1.5],["Medium","1 cup cooked",145,3],["Large","1.5 cup cooked",218,4.5]]],
+["Oatmeal, cooked","Carb",[["Small","1/2 cup cooked",77,3],["Medium","1 cup cooked",154,6],["Large","1.5 cup cooked",231,9]]],
+["Steel cut oats, cooked","Carb",[["Small","1/2 cup cooked",85,3],["Medium","1 cup cooked",170,6],["Large","1.5 cup cooked",255,9]]],
+["Pasta, white","Carb",[["Small","1/2 cup cooked",110,4],["Medium","1 cup cooked",220,8],["Large","1.5 cup cooked",330,12]]],
+["Pasta, whole wheat","Carb",[["Small","1/2 cup cooked",87,3.8],["Medium","1 cup cooked",174,7.5],["Large","1.5 cup cooked",261,11.2]]],
+["Pasta, gluten-free","Carb",[["Small","1/2 cup cooked",100,2],["Medium","1 cup cooked",200,4],["Large","1.5 cup cooked",300,6]]],
+["Pasta, chickpea","Carb",[["Small","1/2 cup cooked",95,6.5],["Medium","1 cup cooked",190,13],["Large","1.5 cup cooked",285,19.5]]],
+["Egg noodles","Carb",[["Small","1/2 cup cooked",110,3.5],["Medium","1 cup cooked",220,7],["Large","1.5 cup cooked",330,10.5]]],
+["Rice noodles","Carb",[["Small","1/2 cup cooked",95,1.5],["Medium","1 cup cooked",190,3],["Large","1.5 cup cooked",285,4.5]]],
+["Ramen noodles","Carb",[["Small","1/2 cup cooked",95,2.5],["Medium","1 cup cooked",190,5],["Large","1.5 cup cooked",285,7.5]]],
+["Soba noodles","Carb",[["Small","1/2 cup cooked",56,3],["Medium","1 cup cooked",113,6],["Large","1.5 cup cooked",170,9]]],
+["Bread, white","Carb",[["Small","1 slice",80,3],["Medium","2 x slice",160,6],["Large","3 x slice",240,9]]],
+["Bread, whole wheat","Carb",[["Small","1 slice",80,4],["Medium","2 x slice",160,8],["Large","3 x slice",240,12]]],
+["Bread, sourdough","Carb",[["Small","1 slice",90,4],["Medium","2 x slice",180,8],["Large","3 x slice",270,12]]],
+["Bread, rye","Carb",[["Small","1 slice",83,3],["Medium","2 x slice",166,6],["Large","3 x slice",249,9]]],
+["Bread, gluten-free","Carb",[["Small","1 slice",90,2],["Medium","2 x slice",180,4],["Large","3 x slice",270,6]]],
+["Bagel","Carb",[["Small","1 bagel",245,10],["Medium","2 x bagel",490,20],["Large","3 x bagel",735,30]]],
+["English muffin","Carb",[["Small","1 muffin",130,5],["Medium","2 x muffin",260,10],["Large","3 x muffin",390,15]]],
+["Tortilla, flour","Carb",[["Small","1 tortilla",140,4],["Medium","2 x tortilla",280,8],["Large","3 x tortilla",420,12]]],
+["Tortilla, corn","Carb",[["Small","1 tortilla",60,1.5],["Medium","2 x tortilla",120,3],["Large","3 x tortilla",180,4.5]]],
+["Pita bread","Carb",[["Small","1 pita",165,5.5],["Medium","2 x pita",330,11],["Large","3 x pita",495,16.5]]],
+["Naan","Carb",[["Small","1 naan",260,9],["Medium","2 x naan",520,18],["Large","3 x naan",780,27]]],
+["Hamburger bun","Carb",[["Small","1 bun",145,5],["Medium","2 x bun",290,10],["Large","3 x bun",435,15]]],
+["Hot dog bun","Carb",[["Small","1 bun",120,4],["Medium","2 x bun",240,8],["Large","3 x bun",360,12]]],
+["Croissant","Carb",[["Small","1 croissant",230,5],["Medium","2 x croissant",460,10],["Large","3 x croissant",690,15]]],
+["Biscuit","Carb",[["Small","1 biscuit",200,4],["Medium","2 x biscuit",400,8],["Large","3 x biscuit",600,12]]],
+["Dinner roll","Carb",[["Small","1 roll",85,2.5],["Medium","2 x roll",170,5],["Large","3 x roll",255,7.5]]],
+["Waffle","Carb",[["Small","1 waffle",200,5],["Medium","2 x waffle",400,10],["Large","3 x waffle",600,15]]],
+["Pancake","Carb",[["Small","1 pancake",90,2.5],["Medium","2 x pancake",180,5],["Large","3 x pancake",270,7.5]]],
+["Rice cake","Carb",[["Small","1 cake",35,0.7],["Medium","2 x cake",70,1.4],["Large","3 x cake",105,2.0999999999999996]]],
+["Corn tortilla chip serving","Carb",[["Small","1 oz",140,2],["Medium","2 x oz",280,4],["Large","3 x oz",420,6]]],
+["Breadcrumbs","Carb",[["1 tsp","1 tsp",9,0.3],["1 tbsp","1 tbsp",27,1],["2 tbsp","2 tbsp",54,2]]],
+["Panko","Carb",[["1 tsp","1 tsp",7,0.2],["1 tbsp","1 tbsp",22,0.7],["2 tbsp","2 tbsp",44,1.4]]],
+["Flour, all-purpose","Carb",[["1 tsp","1 tsp",9,0.3],["1 tbsp","1 tbsp",28,0.8],["2 tbsp","2 tbsp",56,1.6]]],
+["Flour, whole wheat","Carb",[["1 tsp","1 tsp",8,0.3],["1 tbsp","1 tbsp",25,1],["2 tbsp","2 tbsp",50,2]]],
+["Almond flour","Carb",[["1 tsp","1 tsp",13,0.5],["1 tbsp","1 tbsp",40,1.5],["2 tbsp","2 tbsp",80,3]]],
+["Coconut flour","Carb",[["1 tsp","1 tsp",10,0.4],["1 tbsp","1 tbsp",30,1.2],["2 tbsp","2 tbsp",60,2.4]]],
+["Cornstarch","Carb",[["1 tsp","1 tsp",10,0],["1 tbsp","1 tbsp",30,0],["2 tbsp","2 tbsp",60,0]]],
+["Oat flour","Carb",[["1 tsp","1 tsp",10,0.3],["1 tbsp","1 tbsp",30,1],["2 tbsp","2 tbsp",60,2]]],
+["Granola","Carb",[["Small","1/2 cup cooked",250,6],["Medium","1 cup cooked",500,12],["Large","1.5 cup cooked",750,18]]],
+["Cereal, o-shaped","Carb",[["Small","1/2 cup cooked",50,1.5],["Medium","1 cup cooked",100,3],["Large","1.5 cup cooked",150,4.5]]],
+["Cereal, bran flakes","Carb",[["Small","1/2 cup cooked",64,2],["Medium","1 cup cooked",128,4],["Large","1.5 cup cooked",192,6]]],
+["Crackers, saltine","Carb",[["Small","5 crackers",65,1],["Medium","10 crackers",130,2],["Large","15 crackers",195,3]]],
+["Crackers, wheat","Carb",[["Small","8 crackers",90,1.5],["Medium","16 crackers",180,3],["Large","24 crackers",270,4.5]]],
+["Baking soda","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",0,0],["1 tbsp","1 tbsp",0,0]]],
+["Baking powder","Spice",[["Pinch","1 pinch",0,0],["1 tsp","1 tsp",2,0],["1 tbsp","1 tbsp",7,0]]],
+["Vanilla extract","Spice",[["Small","1/2 tsp",6,0],["Medium","1 tsp",12,0],["Large","1 tbsp",37,0]]],
+["Yeast, active dry","Spice",[["Small","1/2 tsp",5,0],["Medium","1 tsp",11,1],["Large","1 packet",21,3]]],
+["Milk, whole","Dairy",[["Small","1/2 cup",75,4],["Medium","1 cup",150,8],["Large","1.5 cup",225,12]]],
+["Milk, 2%","Dairy",[["Small","1/2 cup",61,4],["Medium","1 cup",122,8],["Large","1.5 cup",183,12]]],
+["Milk, skim","Dairy",[["Small","1/2 cup",42,4],["Medium","1 cup",83,8],["Large","1.5 cup",124,12]]],
+["Milk, lactose-free","Dairy",[["Small","1/2 cup",65,4],["Medium","1 cup",130,8],["Large","1.5 cup",195,12]]],
+["Almond milk, unsweetened","Dairy",[["Small","1/2 cup",15,0.5],["Medium","1 cup",30,1],["Large","1.5 cup",45,1.5]]],
+["Oat milk","Dairy",[["Small","1/2 cup",60,1.5],["Medium","1 cup",120,3],["Large","1.5 cup",180,4.5]]],
+["Soy milk","Dairy",[["Small","1/2 cup",52,3.5],["Medium","1 cup",105,7],["Large","1.5 cup",158,10.5]]],
+["Coconut milk, beverage","Dairy",[["Small","1/2 cup",22,0],["Medium","1 cup",45,0],["Large","1.5 cup",68,0]]],
+["Coconut milk, canned","Dairy",[["Small","1/2 cup",222,2.5],["Medium","1 cup",445,5],["Large","1.5 cup",668,7.5]]],
+["Heavy cream","Dairy",[["Small","1/2 cup",400,2.5],["Medium","1 cup",800,5],["Large","1.5 cup",1200,7.5]]],
+["Half and half","Dairy",[["Small","1/2 cup",158,3.5],["Medium","1 cup",315,7],["Large","1.5 cup",472,10.5]]],
+["Buttermilk","Dairy",[["Small","1/2 cup",49,4],["Medium","1 cup",98,8],["Large","1.5 cup",147,12]]],
+["Greek yogurt, plain","Dairy",[["Small","1/2 cup",65,11],["Medium","1 cup",130,22],["Large","1.5 cup",195,33]]],
+["Greek yogurt, vanilla","Dairy",[["Small","1/2 cup",95,10],["Medium","1 cup",190,20],["Large","1.5 cup",285,30]]],
+["Yogurt, regular plain","Dairy",[["Small","1/2 cup",75,4.5],["Medium","1 cup",150,9],["Large","1.5 cup",225,13.5]]],
+["Cottage cheese","Dairy",[["Small","1/2 cup",100,12.5],["Medium","1 cup",200,25],["Large","1.5 cup",300,37.5]]],
+["Ricotta cheese","Dairy",[["Small","1/2 cup",200,14],["Medium","1 cup",400,28],["Large","1.5 cup",600,42]]],
+["Kefir","Dairy",[["Small","1/2 cup",55,4.5],["Medium","1 cup",110,9],["Large","1.5 cup",165,13.5]]],
+["Cheddar cheese","Nuts & Seeds",[["Small","1/2 oz",56,3.5],["Medium","1 oz",113,7],["Large","2 oz",226,14]]],
+["Mozzarella cheese","Nuts & Seeds",[["Small","1/2 oz",42,3],["Medium","1 oz",85,6],["Large","2 oz",170,12]]],
+["Parmesan cheese","Nuts & Seeds",[["Small","1/2 oz",55,5],["Medium","1 oz",110,10],["Large","2 oz",220,20]]],
+["Swiss cheese","Nuts & Seeds",[["Small","1/2 oz",54,4],["Medium","1 oz",108,8],["Large","2 oz",216,16]]],
+["Provolone cheese","Nuts & Seeds",[["Small","1/2 oz",50,3.5],["Medium","1 oz",100,7],["Large","2 oz",200,14]]],
+["Feta cheese","Nuts & Seeds",[["Small","1/2 oz",38,2],["Medium","1 oz",75,4],["Large","2 oz",150,8]]],
+["Goat cheese","Nuts & Seeds",[["Small","1/2 oz",52,3],["Medium","1 oz",103,6],["Large","2 oz",206,12]]],
+["Blue cheese","Nuts & Seeds",[["Small","1/2 oz",50,3],["Medium","1 oz",100,6],["Large","2 oz",200,12]]],
+["American cheese","Nuts & Seeds",[["Small","1/2 oz",50,2.5],["Medium","1 oz",100,5],["Large","2 oz",200,10]]],
+["Pepper jack cheese","Nuts & Seeds",[["Small","1/2 oz",55,3.5],["Medium","1 oz",110,7],["Large","2 oz",220,14]]],
+["Brie","Nuts & Seeds",[["Small","1/2 oz",48,3],["Medium","1 oz",95,6],["Large","2 oz",190,12]]],
+["Gouda","Nuts & Seeds",[["Small","1/2 oz",50,3.5],["Medium","1 oz",101,7],["Large","2 oz",202,14]]],
+["Almonds","Nuts & Seeds",[["Small","1/2 oz",82,3],["Medium","1 oz",164,6],["Large","2 oz",328,12]]],
+["Walnuts","Nuts & Seeds",[["Small","1/2 oz",92,2.1],["Medium","1 oz",185,4.3],["Large","2 oz",370,8.6]]],
+["Pecans","Nuts & Seeds",[["Small","1/2 oz",98,1.3],["Medium","1 oz",196,2.6],["Large","2 oz",392,5.2]]],
+["Cashews","Nuts & Seeds",[["Small","1/2 oz",78,2.6],["Medium","1 oz",157,5.2],["Large","2 oz",314,10.4]]],
+["Pistachios","Nuts & Seeds",[["Small","1/2 oz",80,2.9],["Medium","1 oz",159,5.7],["Large","2 oz",318,11.4]]],
+["Peanuts","Nuts & Seeds",[["Small","1/2 oz",80,3.6],["Medium","1 oz",161,7.3],["Large","2 oz",322,14.6]]],
+["Macadamia nuts","Nuts & Seeds",[["Small","1/2 oz",102,1.1],["Medium","1 oz",204,2.2],["Large","2 oz",408,4.4]]],
+["Brazil nuts","Nuts & Seeds",[["Small","1/2 oz",94,2],["Medium","1 oz",187,4],["Large","2 oz",374,8]]],
+["Hazelnuts","Nuts & Seeds",[["Small","1/2 oz",89,2.1],["Medium","1 oz",178,4.2],["Large","2 oz",356,8.4]]],
+["Pine nuts","Nuts & Seeds",[["Small","1/2 oz",96,1.9],["Medium","1 oz",191,3.9],["Large","2 oz",382,7.8]]],
+["Sunflower seeds","Nuts & Seeds",[["Small","1/2 oz",82,2.8],["Medium","1 oz",165,5.5],["Large","2 oz",330,11]]],
+["Pumpkin seeds","Nuts & Seeds",[["Small","1/2 oz",79,4.2],["Medium","1 oz",158,8.5],["Large","2 oz",316,17]]],
+["Chia seeds","Nuts & Seeds",[["Small","1/2 oz",69,2.4],["Medium","1 oz",138,4.7],["Large","2 oz",276,9.4]]],
+["Flax seeds, ground","Nuts & Seeds",[["Small","1/2 oz",75,2.6],["Medium","1 oz",150,5.2],["Large","2 oz",300,10.4]]],
+["Hemp seeds","Nuts & Seeds",[["Small","1/2 oz",78,4.6],["Medium","1 oz",155,9.2],["Large","2 oz",310,18.4]]],
+["Sesame seeds","Nuts & Seeds",[["Small","1/2 oz",80,2.5],["Medium","1 oz",160,5],["Large","2 oz",320,10]]],
+["Peanut butter","Nuts & Seeds",[["1 tsp","1 tsp",32,1.3],["1 tbsp","1 tbsp",95,4],["2 tbsp","2 tbsp",190,8]]],
+["Almond butter","Nuts & Seeds",[["1 tsp","1 tsp",33,1.1],["1 tbsp","1 tbsp",98,3.4],["2 tbsp","2 tbsp",196,6.8]]],
+["Cashew butter","Nuts & Seeds",[["1 tsp","1 tsp",31,1],["1 tbsp","1 tbsp",94,3],["2 tbsp","2 tbsp",188,6]]],
+["Sunflower seed butter","Nuts & Seeds",[["1 tsp","1 tsp",33,1],["1 tbsp","1 tbsp",99,3],["2 tbsp","2 tbsp",198,6]]],
+["Coconut, shredded","Nuts & Seeds",[["1 tsp","1 tsp",12,0.1],["1 tbsp","1 tbsp",35,0.3],["2 tbsp","2 tbsp",70,0.6]]],
+["Coffee, black","Beverage",[["Small","8 oz",2,0],["Medium","12 oz",3,0],["Large","16 oz",4,0]]],
+["Coffee with cream","Beverage",[["Small","8 oz",50,0],["Medium","12 oz",75,0],["Large","16 oz",100,0]]],
+["Latte","Beverage",[["Small","8 oz",120,8],["Medium","12 oz",180,12],["Large","16 oz",240,16]]],
+["Cappuccino","Beverage",[["Small","8 oz",80,5],["Medium","12 oz",120,7.5],["Large","16 oz",160,10]]],
+["Espresso","Beverage",[["Small","8 oz",3,0],["Medium","12 oz",4,0],["Large","16 oz",6,0]]],
+["Cold brew","Beverage",[["Small","8 oz",5,0],["Medium","12 oz",8,0],["Large","16 oz",10,0]]],
+["Tea, black","Beverage",[["Small","8 oz",2,0],["Medium","12 oz",3,0],["Large","16 oz",4,0]]],
+["Tea, green","Beverage",[["Small","8 oz",2,0],["Medium","12 oz",3,0],["Large","16 oz",4,0]]],
+["Tea, herbal","Beverage",[["Small","8 oz",2,0],["Medium","12 oz",3,0],["Large","16 oz",4,0]]],
+["Chai latte","Beverage",[["Small","8 oz",150,5],["Medium","12 oz",225,7.5],["Large","16 oz",300,10]]],
+["Water","Beverage",[["Small","8 oz",0,0],["Medium","12 oz",0,0],["Large","16 oz",0,0]]],
+["Sparkling water","Beverage",[["Small","8 oz",0,0],["Medium","12 oz",0,0],["Large","16 oz",0,0]]],
+["Electrolyte drink","Beverage",[["Small","8 oz",60,0],["Medium","12 oz",90,0],["Large","16 oz",120,0]]],
+["Orange juice","Beverage",[["Small","8 oz",112,2],["Medium","12 oz",168,3],["Large","16 oz",224,4]]],
+["Apple juice","Beverage",[["Small","8 oz",114,0],["Medium","12 oz",171,0],["Large","16 oz",228,0]]],
+["Cranberry juice","Beverage",[["Small","8 oz",116,0],["Medium","12 oz",174,0],["Large","16 oz",232,0]]],
+["Lemonade","Beverage",[["Small","8 oz",99,0],["Medium","12 oz",148,0],["Large","16 oz",198,0]]],
+["Soda, regular","Beverage",[["Small","8 oz",100,0],["Medium","12 oz",150,0],["Large","16 oz",200,0]]],
+["Soda, diet","Beverage",[["Small","8 oz",0,0],["Medium","12 oz",0,0],["Large","16 oz",0,0]]],
+["Kombucha","Beverage",[["Small","8 oz",60,0],["Medium","12 oz",90,0],["Large","16 oz",120,0]]],
+["Beer","Beverage",[["Small","8 oz",150,1.6],["Medium","12 oz",225,2.4],["Large","16 oz",300,3.2]]],
+["Wine, red","Beverage",[["Small","8 oz",250,0],["Medium","12 oz",375,0],["Large","16 oz",500,0]]],
+["Wine, white","Beverage",[["Small","8 oz",240,0],["Medium","12 oz",360,0],["Large","16 oz",480,0]]],
+["Smoothie","Beverage",[["Small","8 oz",250,8],["Medium","12 oz",375,12],["Large","16 oz",500,16]]],
+["Bone broth","Beverage",[["Small","8 oz",40,9],["Medium","12 oz",60,13.5],["Large","16 oz",80,18]]],
+["Chicken broth","Beverage",[["Small","8 oz",15,1],["Medium","12 oz",22,1.5],["Large","16 oz",30,2]]],
+["Vegetable broth","Beverage",[["Small","8 oz",12,0],["Medium","12 oz",18,0],["Large","16 oz",24,0]]]
+];
+
+/* Curated ingredient library — real per-portion macros. Covers whole foods,
+   spices, condiments, oils, sweeteners and individual recipe ingredients so
+   most meals can be built from components rather than pre-made dishes. */
 function starterLibrary() {
-  const mk = (name, category, flagLevel, flagReason, sizes) => ({
+  return CURATED_RAW.map(([name, category, sizes]) => ({
     id: uid(),
     name,
     category,
     isCombo: false,
-    flagLevel,
-    flagReason,
-    sizes,
-  });
-  const sz = (label, amount, calories, protein) => ({ id: label, label, amount, calories, protein });
-
-  return [
-    mk("Chicken breast", "Protein", "none", "", [sz("Small", "4 oz", 165, 31), sz("Medium", "6 oz", 248, 46), sz("Large", "8 oz", 330, 62)]),
-    mk("Chicken sausage", "Protein", "none", "", [sz("Small", "1 link", 140, 12), sz("Medium", "2 links", 280, 24), sz("Large", "3 links", 420, 36)]),
-    mk("Ground turkey", "Protein", "none", "", [sz("Small", "3 oz", 145, 22), sz("Medium", "5 oz", 242, 37), sz("Large", "7 oz", 340, 52)]),
-    mk("Salmon", "Protein", "none", "", [sz("Small", "4 oz", 206, 23), sz("Medium", "6 oz", 309, 34), sz("Large", "8 oz", 412, 46)]),
-    mk("Eggs, whole", "Protein", "red", "Bloodwork: contains egg white, IgE Class II (Moderate)", [sz("Small", "1 egg", 70, 6), sz("Medium", "2 eggs", 140, 12), sz("Large", "3 eggs", 210, 18)]),
-    mk("Egg yolk only", "Protein", "none", "Doctor: reintroduce 1-2x/week", [sz("Small", "1 yolk", 55, 3), sz("Medium", "2 yolks", 110, 6), sz("Large", "3 yolks", 165, 9)]),
-    mk("Greek yogurt, plain", "Dairy", "orange", "Fermented / histamine-releasing", [sz("Small", "1/2 cup", 65, 11), sz("Medium", "1 cup", 130, 22), sz("Large", "1.5 cup", 195, 33)]),
-    mk("Aged cheddar cheese", "Dairy", "orange", "Aged cheese — high histamine", [sz("Small", "1 oz", 115, 7), sz("Medium", "2 oz", 230, 14), sz("Large", "3 oz", 345, 21)]),
-    mk("White rice", "Carb", "none", "", [sz("Small", "1/2 cup", 100, 2), sz("Medium", "1 cup", 205, 4), sz("Large", "1.5 cup", 308, 6)]),
-    mk("Brown rice", "Carb", "none", "", [sz("Small", "1/2 cup", 108, 3), sz("Medium", "1 cup", 216, 5), sz("Large", "1.5 cup", 324, 8)]),
-    mk("Quinoa", "Carb", "none", "", [sz("Small", "1/2 cup", 111, 4), sz("Medium", "1 cup", 222, 8), sz("Large", "1.5 cup", 333, 12)]),
-    mk("Sweet potato", "Carb", "none", "", [sz("Small", "1 small", 100, 2), sz("Medium", "1 medium", 180, 4), sz("Large", "1 large", 260, 5)]),
-    mk("White potato", "Carb", "none", "", [sz("Small", "1 small", 128, 3), sz("Medium", "1 medium", 163, 4), sz("Large", "1 large", 220, 5)]),
-    mk("Pasta, gluten-free", "Carb", "none", "", [sz("Small", "1 cup cooked", 175, 4), sz("Medium", "1.5 cup cooked", 262, 6), sz("Large", "2 cup cooked", 350, 8)]),
-    mk("Pasta, wheat", "Carb", "none", "Contains gluten", [sz("Small", "1 cup cooked", 200, 7), sz("Medium", "1.5 cup cooked", 300, 11), sz("Large", "2 cup cooked", 400, 14)]),
-    mk("Sourdough bread", "Carb", "orange", "Fermented — histamine", [sz("Small", "1 slice", 90, 4), sz("Medium", "2 slices", 180, 8), sz("Large", "3 slices", 270, 12)]),
-    mk("Oatmeal", "Carb", "none", "", [sz("Small", "1/2 cup dry", 150, 5), sz("Medium", "3/4 cup dry", 225, 8), sz("Large", "1 cup dry", 300, 10)]),
-    mk("Broccoli", "Vegetable", "none", "", [sz("Small", "1/2 cup", 27, 2), sz("Medium", "1 cup", 55, 4), sz("Large", "1.5 cup", 82, 6)]),
-    mk("Spinach", "Vegetable", "orange", "High histamine vegetable", [sz("Small", "1/2 cup", 3, 1), sz("Medium", "1 cup", 7, 1), sz("Large", "2 cup", 14, 2)]),
-    mk("Bell pepper", "Vegetable", "none", "", [sz("Small", "1/2 pepper", 15, 1), sz("Medium", "1 pepper", 30, 1), sz("Large", "1.5 pepper", 45, 2)]),
-    mk("Carrots", "Vegetable", "none", "", [sz("Small", "1/2 cup", 26, 1), sz("Medium", "1 cup", 52, 1), sz("Large", "1.5 cup", 78, 2)]),
-    mk("Zucchini", "Vegetable", "none", "", [sz("Small", "1/2 cup", 10, 1), sz("Medium", "1 cup", 20, 2), sz("Large", "1.5 cup", 30, 2)]),
-    mk("Tomato", "Vegetable", "orange", "High histamine", [sz("Small", "1/2 tomato", 11, 1), sz("Medium", "1 tomato", 22, 1), sz("Large", "1.5 tomato", 33, 2)]),
-    mk("Avocado", "Fat", "orange", "High histamine", [sz("Small", "1/4 avocado", 60, 1), sz("Medium", "1/2 avocado", 120, 2), sz("Large", "1 avocado", 240, 3)]),
-    mk("Banana", "Fruit", "none", "", [sz("Small", "1 small", 90, 1), sz("Medium", "1 medium", 105, 1), sz("Large", "1 large", 120, 2)]),
-    mk("Apple", "Fruit", "none", "", [sz("Small", "1 small", 77, 0), sz("Medium", "1 medium", 95, 0), sz("Large", "1 large", 116, 1)]),
-    mk("Blueberries", "Fruit", "none", "", [sz("Small", "1/2 cup", 42, 1), sz("Medium", "1 cup", 84, 1), sz("Large", "1.5 cup", 126, 2)]),
-    mk("Almonds", "Fat", "none", "", [sz("Small", "10 almonds", 70, 3), sz("Medium", "20 almonds", 140, 5), sz("Large", "30 almonds", 210, 8)]),
-    mk("Peanut butter", "Fat", "none", "", [sz("Small", "1 tbsp", 95, 4), sz("Medium", "2 tbsp", 190, 7), sz("Large", "3 tbsp", 285, 11)]),
-    mk("Bacon", "Protein", "orange", "Cured meat — high histamine", [sz("Small", "1 slice", 43, 3), sz("Medium", "3 slices", 129, 9), sz("Large", "5 slices", 215, 15)]),
-    mk("Deli turkey (cured)", "Protein", "orange", "Cured/processed meat — high histamine", [sz("Small", "2 oz", 60, 10), sz("Medium", "4 oz", 120, 20), sz("Large", "6 oz", 180, 30)]),
-    mk("Bone broth", "Other", "none", "", [sz("Small", "1 cup", 40, 9), sz("Medium", "1.5 cup", 60, 14), sz("Large", "2 cup", 80, 18)]),
-    mk("Olive oil", "Fat", "none", "", [sz("Small", "1 tsp", 40, 0), sz("Medium", "1 tbsp", 120, 0), sz("Large", "2 tbsp", 240, 0)]),
-  ];
+    flagLevel: "none",
+    flagReason: "",
+    sizes: sizes.map(([label, amount, calories, protein]) => ({
+      id: label,
+      label,
+      amount,
+      calories,
+      protein,
+    })),
+  }));
 }
 
 function starterWatchList() {
@@ -187,7 +602,7 @@ function starterWatchList() {
     mk("yogurt", "orange", "Fermented dairy"),
     mk("kombucha", "orange", "Fermented drink"),
     // Bloodwork-derived flags (IgE panel)
-    { id: uid(), term: "wheat", level: "red", reason: "Bloodwork: Wheat IgE 2.20 kU/L — Class III (High)" },
+    { id: uid(), term: "wheat", level: "red", reason: "Bloodwork: Wheat IgE 2.20 kU/L — Class III (High)", except: ["buckwheat"] },
     { id: uid(), term: "peanut", level: "red", reason: "Bloodwork: Peanut IgE 0.32 kU/L — Class I (Low)" },
     { id: uid(), term: "egg white", level: "red", reason: "Bloodwork: Egg White IgE 0.72 kU/L — Class II (Moderate)" },
     {
@@ -213,16 +628,41 @@ function histamineLibraryItems() {
   return HISTAMINE_LIBRARY_RAW.map((f) => ({ id: uid(), ...f }));
 }
 
+function histamineFlagIndex() {
+  const map = {};
+  HISTAMINE_LIBRARY_RAW.forEach((f) => {
+    if (f.flagLevel && f.flagLevel !== "none") {
+      map[f.name.trim().toLowerCase()] = { level: f.flagLevel, reason: f.flagReason };
+    }
+  });
+  // Foods that were de-duplicated out of the raw list still carry a tier.
+  HISTAMINE_UPGRADES.forEach((u) => {
+    map[u.name_lower] = { level: u.level, reason: u.reason };
+  });
+  return map;
+}
+
+/* Curated names are often qualified ("Mushrooms, white", "Tomato, fresh").
+   Match on the base name before the first comma as well as the full name. */
+function histamineFlagFor(name, index) {
+  const full = name.trim().toLowerCase();
+  if (index[full]) return index[full];
+  const base = full.split(",")[0].trim();
+  if (index[base]) return index[base];
+  const singular = base.endsWith("s") ? base.slice(0, -1) : base + "s";
+  if (index[singular]) return index[singular];
+  return null;
+}
+
 function mergeHistamineIntoLibrary(baseList) {
-  const upgradeMap = {};
-  HISTAMINE_UPGRADES.forEach((u) => { upgradeMap[u.name_lower] = u; });
+  const index = histamineFlagIndex();
 
   const upgraded = baseList.map((f) => {
-    const u = upgradeMap[f.name.toLowerCase()];
-    if (!u) return f;
-    const level = worstFlag(f.flagLevel, u.level);
-    if (level === f.flagLevel) return f;
-    return { ...f, flagLevel: level, flagReason: f.flagReason || u.reason };
+    const h = histamineFlagFor(f.name, index);
+    if (!h) return f;
+    const merged = worstFlag(f.flagLevel, h.level);
+    if (merged === f.flagLevel) return f;
+    return { ...f, flagLevel: merged, flagReason: f.flagReason || h.reason };
   });
 
   const existingNames = new Set(upgraded.map((f) => f.name.toLowerCase()));
@@ -235,7 +675,8 @@ function mergeHistamineIntoLibrary(baseList) {
    STORAGE
 --------------------------------------------------------- */
 const ENTRIES_KEY = "food-tracker-entries-v1";
-const LIBRARY_KEY = "food-tracker-library-v2";
+const LIBRARY_KEY = "food-tracker-library-v3";
+const LIBRARY_KEY_PREV = "food-tracker-library-v2";
 const WATCHLIST_KEY = "food-tracker-watchlist-v2";
 
 async function loadJSON(key, fallback) {
@@ -312,10 +753,11 @@ function matchWatchList(name, watchList) {
   let level = "none";
   let reasons = [];
   watchList.forEach((w) => {
-    if (lower.includes(w.term.toLowerCase())) {
-      level = worstFlag(level, w.level);
-      reasons.push(w.reason);
-    }
+    if (!lower.includes(w.term.toLowerCase())) return;
+    // some terms have exceptions (e.g. "wheat" should not flag "buckwheat")
+    if (w.except && w.except.some((x) => lower.includes(x.toLowerCase()))) return;
+    level = worstFlag(level, w.level);
+    reasons.push(w.reason);
   });
   return { level, reason: reasons.join("; ") };
 }
@@ -1266,8 +1708,86 @@ function TrendChart({ data }) {
   );
 }
 
-function ReportTab({ entries }) {
+/* ---------------------------------------------------------
+   EXPORT HELPERS
+--------------------------------------------------------- */
+function downloadFile(filename, content, mime) {
+  try {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (e) {
+    alert("Download failed on this browser. Try again from Safari or Chrome.");
+  }
+}
+
+function csvCell(v) {
+  const s = v == null ? "" : String(v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function buildCSV(entries) {
+  const header = [
+    "Date", "Time", "Entry type", "Detail", "Portion / severity",
+    "Flag", "Sleep (1-10)", "Pain (1-10)", "Stress (1-10)",
+    "Period", "PMS", "Day notes",
+  ];
+  const rows = [header];
+  Object.keys(entries).sort().forEach((date) => {
+    const e = entries[date];
+    const dayCols = [
+      e.sleep ?? "", e.pain ?? "", e.stress ?? "",
+      e.periodOn ? (e.flow || "yes") : "",
+      (e.pms || []).join("; "),
+      e.notes || "",
+    ];
+    const events = [
+      ...(e.meals || []).map((m) => ({ sort: timeToMinutes(m.time) ?? 9999, kind: "meal", d: m })),
+      ...(e.symptomLogs || []).map((l) => ({ sort: timeToMinutes(l.time) ?? 9999, kind: "symptom", d: l })),
+    ].sort((a, b) => a.sort - b.sort);
+
+    if (events.length === 0) {
+      rows.push([date, "", "Day only", "", "", "", ...dayCols]);
+      return;
+    }
+    events.forEach((ev) => {
+      if (ev.kind === "meal") {
+        const m = ev.d;
+        const detail = (m.items || [])
+          .map((it) => {
+            const p = it.sizeLabel || it.amount;
+            return p ? `${it.name} (${p})` : it.name;
+          })
+          .join("; ");
+        const macro = m.totalCal > 0 ? `${m.totalCal} cal / ${m.totalProtein}g protein` : "";
+        rows.push([date, m.time || "", m.type || "Meal", detail, macro, m.flagLevel || "none", ...dayCols]);
+      } else {
+        const l = ev.d;
+        rows.push([
+          date, l.time || "", "Symptom",
+          (l.symptoms || []).join("; "),
+          l.severity != null ? `severity ${l.severity}` : "",
+          "", ...dayCols,
+        ]);
+      }
+    });
+  });
+  return rows.map((r) => r.map(csvCell).join(",")).join("\n");
+}
+
+/* ---------------------------------------------------------
+   REPORT TAB
+--------------------------------------------------------- */
+function ReportTab({ entries, onRestore }) {
   const sortedDates = Object.keys(entries).sort();
+  const daysLogged = sortedDates.length;
+
   const last14 = useMemo(() => {
     const base = sortedDates.length ? sortedDates[sortedDates.length - 1] : todayStr();
     const end = new Date(base + "T00:00:00");
@@ -1285,63 +1805,85 @@ function ReportTab({ entries }) {
     return { date: fmtDateShort(d), Sleep: e ? e.sleep : null, Pain: e ? e.pain : null, Stress: e ? e.stress : null };
   });
 
-  /* Frequency only — deliberately no food/symptom correlation is computed.
-     The chronological timeline below lets the doctor draw their own links. */
+  /* Frequency only — no correlation between food and symptoms is computed.
+     The chronological daily view lets the reader draw their own conclusions. */
   const ingredientTally = useMemo(() => {
     const map = {};
     Object.values(entries).forEach((e) => {
       (e.meals || []).forEach((m) => {
         (m.items || []).forEach((it) => {
           if (it.flagLevel === "none") return;
-          const key = it.name;
-          if (!map[key]) map[key] = { name: key, level: it.flagLevel, timesEaten: 0, days: new Set() };
-          map[key].timesEaten += 1;
-          map[key].days.add(e.date);
+          if (!map[it.name]) map[it.name] = { name: it.name, level: it.flagLevel, timesEaten: 0, days: new Set() };
+          map[it.name].timesEaten += 1;
+          map[it.name].days.add(e.date);
         });
       });
     });
-    return Object.values(map)
-      .map((r) => ({ ...r, dayCount: r.days.size }))
-      .sort((a, b) => b.timesEaten - a.timesEaten);
+    return Object.values(map).map((r) => ({ ...r, dayCount: r.days.size })).sort((a, b) => b.timesEaten - a.timesEaten);
   }, [entries]);
 
   const symptomTally = useMemo(() => {
     const map = {};
+    const bump = (s, date) => {
+      if (!map[s]) map[s] = { name: s, count: 0, days: new Set() };
+      map[s].count += 1;
+      map[s].days.add(date);
+    };
     Object.values(entries).forEach((e) => {
-      (e.symptomLogs || []).forEach((l) => {
-        (l.symptoms || []).forEach((s) => {
-          if (!map[s]) map[s] = { name: s, count: 0, days: new Set() };
-          map[s].count += 1;
-          map[s].days.add(e.date);
-        });
-      });
-      (e.meals || []).forEach((m) => {
-        (m.symptoms || []).forEach((s) => {
-          if (!map[s]) map[s] = { name: s, count: 0, days: new Set() };
-          map[s].count += 1;
-          map[s].days.add(e.date);
-        });
-      });
+      (e.symptomLogs || []).forEach((l) => (l.symptoms || []).forEach((s) => bump(s, e.date)));
+      (e.meals || []).forEach((m) => (m.symptoms || []).forEach((s) => bump(s, e.date)));
     });
-    return Object.values(map)
-      .map((r) => ({ ...r, dayCount: r.days.size }))
-      .sort((a, b) => b.count - a.count);
+    return Object.values(map).map((r) => ({ ...r, dayCount: r.days.size })).sort((a, b) => b.count - a.count);
   }, [entries]);
 
-  const daysLogged = Object.keys(entries).length;
+  const handleCSV = () => {
+    downloadFile(`meal-symptom-log-${todayStr()}.csv`, buildCSV(entries), "text/csv;charset=utf-8;");
+  };
+  const handleBackup = () => {
+    downloadFile(
+      `tracker-backup-${todayStr()}.json`,
+      JSON.stringify({ exportedAt: new Date().toISOString(), entries }, null, 2),
+      "application/json"
+    );
+  };
+  const handleRestoreFile = (ev) => {
+    const file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        const incoming = parsed.entries || parsed;
+        if (typeof incoming !== "object") throw new Error("bad format");
+        onRestore(incoming);
+      } catch (e) {
+        alert("That file could not be read as a tracker backup.");
+      }
+    };
+    reader.readAsText(file);
+    ev.target.value = "";
+  };
 
   return (
     <div className="tab-body report-body">
       <div className="report-header no-print">
         <div>
           <h3 className="card-title">Report for the doctor</h3>
-          <p className="card-sub">{daysLogged} days logged. Use Print to save as PDF.</p>
+          <p className="card-sub">{daysLogged} day{daysLogged !== 1 ? "s" : ""} logged.</p>
         </div>
-        <button className="btn-primary" onClick={() => window.print()}>Print / Save as PDF</button>
+        <div className="report-actions">
+          <button className="btn-primary" onClick={() => window.print()}>Print / Save as PDF</button>
+          <button className="btn-secondary" onClick={handleCSV}>Export CSV</button>
+          <button className="btn-secondary" onClick={handleBackup}>Backup</button>
+          <label className="btn-secondary restore-label">
+            Restore
+            <input type="file" accept="application/json,.json" onChange={handleRestoreFile} className="hidden-file" />
+          </label>
+        </div>
       </div>
 
       <div className="print-only print-title">
-        <h1>Food &amp; Symptom Tracking Report</h1>
+        <h1>Meal &amp; Symptom Tracking Report</h1>
         <p>{daysLogged} days logged · generated {fmtDateFull(todayStr())}</p>
       </div>
 
@@ -1355,131 +1897,198 @@ function ReportTab({ entries }) {
         </div>
       </div>
 
-      <div className="card">
-        <h3 className="card-title">Flagged ingredients eaten</h3>
-        <p className="card-sub">How often flagged foods appeared, for reference alongside the timeline.</p>
-        {ingredientTally.length === 0 && <p className="empty-note">No flagged foods logged yet.</p>}
-        {ingredientTally.length > 0 && (
-          <table className="report-table">
-            <thead><tr><th>Ingredient</th><th>Flag</th><th>Times eaten</th><th>Days eaten</th></tr></thead>
-            <tbody>
-              {ingredientTally.map((r) => (
-                <tr key={r.name}>
-                  <td>{r.name}</td>
-                  <td><FlagBadge level={r.level} reason="" /></td>
-                  <td className="mono">{r.timesEaten}</td>
-                  <td className="mono">{r.dayCount}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      <div className="two-col">
+        <div className="card">
+          <h3 className="card-title">Flagged ingredients eaten</h3>
+          {ingredientTally.length === 0 && <p className="empty-note">No flagged foods logged yet.</p>}
+          {ingredientTally.length > 0 && (
+            <table className="report-table">
+              <thead><tr><th>Ingredient</th><th>Flag</th><th>Times</th><th>Days</th></tr></thead>
+              <tbody>
+                {ingredientTally.map((r) => (
+                  <tr key={r.name}>
+                    <td>{r.name}</td>
+                    <td><FlagBadge level={r.level} reason="" /></td>
+                    <td className="mono">{r.timesEaten}</td>
+                    <td className="mono">{r.dayCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <div className="card">
+          <h3 className="card-title">Symptom frequency</h3>
+          {symptomTally.length === 0 && <p className="empty-note">No symptoms logged yet.</p>}
+          {symptomTally.length > 0 && (
+            <table className="report-table">
+              <thead><tr><th>Symptom</th><th>Times</th><th>Days</th></tr></thead>
+              <tbody>
+                {symptomTally.map((r) => (
+                  <tr key={r.name}>
+                    <td>{r.name}</td>
+                    <td className="mono">{r.count}</td>
+                    <td className="mono">{r.dayCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
 
-      <div className="card">
-        <h3 className="card-title">Symptom frequency</h3>
-        {symptomTally.length === 0 && <p className="empty-note">No symptoms logged yet.</p>}
-        {symptomTally.length > 0 && (
-          <table className="report-table">
-            <thead><tr><th>Symptom</th><th>Times logged</th><th>Days occurred</th></tr></thead>
-            <tbody>
-              {symptomTally.map((r) => (
-                <tr key={r.name}>
-                  <td>{r.name}</td>
-                  <td className="mono">{r.count}</td>
-                  <td className="mono">{r.dayCount}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      <h3 className="section-heading">Daily detail</h3>
+      {daysLogged === 0 && <p className="empty-note">Nothing logged yet.</p>}
+      {sortedDates.map((date) => (
+        <DayReportCard key={date} entry={entries[date]} date={date} />
+      ))}
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------
+   DAY REPORT CARD — everything recorded for a single day
+--------------------------------------------------------- */
+function DayReportCard({ entry, date }) {
+  const e = normalizeEntry(entry) || blankEntry(date);
+  const meals = e.meals || [];
+  const logs = e.symptomLogs || [];
+
+  const events = [
+    ...meals.map((m) => ({ kind: "meal", id: m.id, time: m.time, sort: timeToMinutes(m.time) ?? 9999, data: m })),
+    ...logs.map((l) => ({ kind: "symptom", id: l.id, time: l.time, sort: timeToMinutes(l.time) ?? 9999, data: l })),
+  ].sort((a, b) => a.sort - b.sort);
+
+  const flaggedToday = [];
+  meals.forEach((m) =>
+    (m.items || []).forEach((it) => {
+      if (it.flagLevel !== "none" && !flaggedToday.some((x) => x.name === it.name)) {
+        flaggedToday.push({ name: it.name, level: it.flagLevel });
+      }
+    })
+  );
+
+  const symptomCount = logs.reduce((s, l) => s + (l.symptoms || []).length, 0);
+  const dayCal = meals.reduce((s, m) => s + (m.totalCal || 0), 0);
+
+  return (
+    <div className="card day-card">
+      <div className="day-card-head">
+        <div>
+          <h4 className="day-card-date">{fmtDateFull(date)}</h4>
+          <div className="day-card-badges">
+            <span className="day-stat">{meals.length} meal{meals.length !== 1 ? "s" : ""}</span>
+            <span className="day-stat">{symptomCount} symptom{symptomCount !== 1 ? "s" : ""}</span>
+            {dayCal > 0 && <span className="day-stat">{dayCal} cal</span>}
+            {e.periodOn && <span className="tag tag-period">period{e.flow ? ` · ${e.flow}` : ""}</span>}
+          </div>
+        </div>
+        <div className="day-metrics">
+          <div className="day-metric">
+            <span className="day-metric-label">Sleep</span>
+            <span className="day-metric-value" style={{ color: scaleColor(e.sleep) }}>{e.sleep ?? "—"}</span>
+          </div>
+          <div className="day-metric">
+            <span className="day-metric-label">Pain</span>
+            <span className="day-metric-value" style={{ color: scaleColor(e.pain) }}>{e.pain ?? "—"}</span>
+          </div>
+          <div className="day-metric">
+            <span className="day-metric-label">Stress</span>
+            <span className="day-metric-value" style={{ color: scaleColor(e.stress) }}>{e.stress ?? "—"}</span>
+          </div>
+        </div>
       </div>
 
-      <div className="card">
-        <h3 className="card-title">Daily timeline</h3>
-        <p className="card-sub">Meals and symptoms in the order they happened, with times as recorded.</p>
-        {sortedDates.map((date) => {
-          const e = entries[date];
-          const meals = e.meals || [];
-          const logs = e.symptomLogs || [];
-          if (meals.length === 0 && logs.length === 0) return null;
-
-          const events = [
-            ...meals.map((m) => ({
-              kind: "meal",
-              id: m.id,
-              time: m.time,
-              sort: timeToMinutes(m.time) ?? 9999,
-              data: m,
-            })),
-            ...logs.map((l) => ({
-              kind: "symptom",
-              id: l.id,
-              time: l.time,
-              sort: timeToMinutes(l.time) ?? 9999,
-              data: l,
-            })),
-          ].sort((a, b) => a.sort - b.sort);
-
-          return (
-            <div key={date} className="report-day-block">
-              <div className="report-day-head">
-                <span className="report-day-date">{fmtDateFull(date)}</span>
-                {e.periodOn && <span className="tag tag-period">period</span>}
-                <span className="card-sub" style={{ margin: 0 }}>
-                  Sleep {e.sleep ?? "—"} · Pain {e.pain ?? "—"} · Stress {e.stress ?? "—"}
-                </span>
-              </div>
-
-              <div className="timeline">
-                {events.map((ev) => (
-                  <div className={`timeline-row timeline-${ev.kind}`} key={ev.id}>
-                    <span className="timeline-time">{fmtTime12(ev.time) || "—"}</span>
-                    <span className={`timeline-marker marker-${ev.kind}`} />
-                    <div className="timeline-content">
-                      {ev.kind === "meal" ? (
-                        <React.Fragment>
-                          <span className="timeline-label">
-                            {ev.data.type}
-                            {ev.data.flagLevel !== "none" && (
-                              <FlagBadge level={ev.data.flagLevel} reason="" />
-                            )}
-                          </span>
-                          <span className="timeline-detail">
-                            {(ev.data.items || [])
-                              .map((it) => {
-                                const portion = it.sizeLabel || it.amount;
-                                return portion ? `${it.name} (${portion})` : it.name;
-                              })
-                              .join(", ")}
-                          </span>
-                          {ev.data.notes && <span className="timeline-note">{ev.data.notes}</span>}
-                          {ev.data.symptoms && ev.data.symptoms.length > 0 && (
-                            <span className="timeline-note">Noted: {ev.data.symptoms.join(", ")}</span>
-                          )}
-                        </React.Fragment>
-                      ) : (
-                        <React.Fragment>
-                          <span className="timeline-label timeline-label-symptom">
-                            Symptom
-                            {ev.data.severity != null && (
-                              <span className="tag tag-severity" style={{ color: scaleColor(ev.data.severity) }}>
-                                severity {ev.data.severity}
-                              </span>
-                            )}
-                          </span>
-                          <span className="timeline-detail">{(ev.data.symptoms || []).join(", ")}</span>
-                          {ev.data.notes && <span className="timeline-note">{ev.data.notes}</span>}
-                        </React.Fragment>
-                      )}
-                    </div>
-                  </div>
+      {(flaggedToday.length > 0 || (e.pms || []).length > 0) && (
+        <div className="day-card-strip">
+          {flaggedToday.length > 0 && (
+            <div className="strip-row">
+              <span className="strip-label">Flagged foods today</span>
+              <div className="strip-tags">
+                {flaggedToday.map((f) => (
+                  <span
+                    key={f.name}
+                    className="tag"
+                    style={{ background: FLAG_META[f.level].soft, color: FLAG_META[f.level].color }}
+                  >
+                    {f.name}
+                  </span>
                 ))}
               </div>
             </div>
-          );
-        })}
-      </div>
+          )}
+          {(e.pms || []).length > 0 && (
+            <div className="strip-row">
+              <span className="strip-label">PMS</span>
+              <div className="strip-tags">
+                {e.pms.map((p) => <span className="tag tag-period" key={p}>{p}</span>)}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {events.length === 0 ? (
+        <p className="empty-note">No meals or symptoms recorded this day.</p>
+      ) : (
+        <div className="timeline">
+          {events.map((ev) => (
+            <div className={`timeline-row timeline-${ev.kind}`} key={ev.id}>
+              <span className="timeline-time">{fmtTime12(ev.time) || "—"}</span>
+              <span className={`timeline-marker marker-${ev.kind}`} />
+              <div className="timeline-content">
+                {ev.kind === "meal" ? (
+                  <React.Fragment>
+                    <span className="timeline-label">
+                      {ev.data.type}
+                      {ev.data.flagLevel !== "none" && <FlagBadge level={ev.data.flagLevel} reason="" />}
+                    </span>
+                    <ul className="timeline-items">
+                      {(ev.data.items || []).map((it, i) => {
+                        const portion = it.sizeLabel || it.amount;
+                        return (
+                          <li key={i} className={it.flagLevel !== "none" ? `item-flagged item-${it.flagLevel}` : ""}>
+                            {it.name}
+                            {portion && <span className="item-portion"> — {portion}</span>}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                    {ev.data.totalCal > 0 && (
+                      <span className="timeline-note">
+                        {ev.data.totalCal} cal · {ev.data.totalProtein}g protein
+                        {ev.data.partialMacros ? " (partial)" : ""}
+                      </span>
+                    )}
+                    {ev.data.notes && <span className="timeline-note">{ev.data.notes}</span>}
+                    {ev.data.symptoms && ev.data.symptoms.length > 0 && (
+                      <span className="timeline-note">Noted: {ev.data.symptoms.join(", ")}</span>
+                    )}
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    <span className="timeline-label timeline-label-symptom">
+                      Symptom
+                      {ev.data.severity != null && (
+                        <span className="tag tag-severity" style={{ color: scaleColor(ev.data.severity) }}>
+                          severity {ev.data.severity}
+                        </span>
+                      )}
+                    </span>
+                    <span className="timeline-detail">{(ev.data.symptoms || []).join(", ")}</span>
+                    {ev.data.notes && <span className="timeline-note">{ev.data.notes}</span>}
+                  </React.Fragment>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {e.notes && (
+        <p className="day-card-notes"><strong>Day notes:</strong> {e.notes}</p>
+      )}
     </div>
   );
 }
@@ -1510,18 +2119,37 @@ function App() {
         await saveJSON(WATCHLIST_KEY, finalWl);
       }
       if (!finalLib) {
-        finalLib = starterLibrary();
-        // apply watch-list based flags on top of curated starter flags where stronger
-        finalLib = finalLib.map((f) => {
+        // Build the base library: curated ingredients + histamine reference list,
+        // then apply bloodwork/histamine flags from the watch list.
+        let base = mergeHistamineIntoLibrary(starterLibrary());
+        base = base.map((f) => {
           const m = matchWatchList(f.name, finalWl);
-          if (worstFlag(f.flagLevel, m.level) !== f.flagLevel) {
-            return { ...f, flagLevel: worstFlag(f.flagLevel, m.level), flagReason: f.flagReason || m.reason };
+          const merged = worstFlag(f.flagLevel, m.level);
+          if (merged !== f.flagLevel) {
+            return { ...f, flagLevel: merged, flagReason: f.flagReason || m.reason };
           }
           return f;
         });
-        // merge in the full histamine reference list (adds ~430 foods, upgrades a
-        // handful of existing curated ones to reflect their histamine tier)
-        finalLib = mergeHistamineIntoLibrary(finalLib);
+
+        // Carry over anything she created herself under the previous library
+        // version (saved meals and custom foods) so nothing is lost on upgrade.
+        const prev = await loadJSON(LIBRARY_KEY_PREV, null);
+        if (Array.isArray(prev)) {
+          const baseNames = new Set(base.map((f) => f.name.toLowerCase()));
+          const userItems = prev.filter(
+            (f) => (f.isCombo || !baseNames.has(f.name.toLowerCase())) && f.name
+          );
+          const seen = new Set();
+          const deduped = userItems.filter((f) => {
+            const k = f.name.toLowerCase();
+            if (seen.has(k) || baseNames.has(k)) return false;
+            seen.add(k);
+            return true;
+          });
+          base = [...base, ...deduped];
+        }
+
+        finalLib = base;
         await saveJSON(LIBRARY_KEY, finalLib);
       }
       setEntries(e);
@@ -1538,6 +2166,26 @@ function App() {
     if (ok) setTimeout(() => setSaveState((s) => (s === "saved" ? "idle" : s)), 1200);
   }, []);
   const persistLibrary = useCallback(async (next) => { await saveJSON(LIBRARY_KEY, next); }, []);
+
+  const handleRestore = useCallback(
+    async (incoming) => {
+      const merged = { ...entries };
+      let added = 0;
+      Object.keys(incoming).forEach((date) => {
+        const inc = incoming[date];
+        if (!inc || typeof inc !== "object") return;
+        if (!merged[date]) added += 1;
+        merged[date] = { ...inc, date };
+      });
+      setEntries(merged);
+      await persistEntries(merged);
+      alert(
+        `Restored ${Object.keys(incoming).length} day(s) from backup` +
+          (added ? ` — ${added} new.` : ".")
+      );
+    },
+    [entries, persistEntries]
+  );
   const persistWatchList = useCallback(async (next) => { await saveJSON(WATCHLIST_KEY, next); }, []);
 
   // wrap saveMeal to also persist combo into library when requested
@@ -1836,6 +2484,41 @@ function App() {
         .timeline-detail { font-size: 12.5px; color: var(--ink); }
         .timeline-note { font-size: 11.5px; color: var(--ink-soft); font-style: italic; }
 
+        /* Report layout */
+        .report-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .restore-label { display: inline-flex; align-items: center; cursor: pointer; }
+        .hidden-file { display: none; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .section-heading { font-family: var(--font-display); font-size: 20px; font-weight: 500; margin: 8px 0 -4px; color: var(--ink); }
+
+        /* Day report card */
+        .day-card { padding: 18px 20px; }
+        .day-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+        .day-card-date { font-family: var(--font-display); font-size: 17px; font-weight: 500; margin: 0 0 6px; }
+        .day-card-badges { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .day-stat { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); }
+        .day-metrics { display: flex; gap: 18px; }
+        .day-metric { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+        .day-metric-label { font-family: var(--font-mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); }
+        .day-metric-value { font-family: var(--font-mono); font-size: 19px; font-weight: 600; }
+        .day-card-strip { display: flex; flex-direction: column; gap: 6px; background: var(--paper); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+        .strip-row { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+        .strip-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); flex-shrink: 0; min-width: 118px; }
+        .strip-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+        .day-card-notes { font-size: 12.5px; color: var(--ink-soft); margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+        .timeline-items { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+        .timeline-items li { font-size: 12.5px; color: var(--ink); }
+        .item-portion { color: var(--ink-faint); font-size: 11.5px; }
+        .item-flagged { font-weight: 600; }
+        .item-red { color: var(--accent); }
+        .item-orange { color: var(--warn); }
+
+        @media (max-width: 700px) {
+          .two-col { grid-template-columns: 1fr; }
+          .day-card-head { flex-direction: column; }
+          .day-metrics { gap: 24px; }
+        }
+
         @media (max-width: 600px) {
           .symptom-log-row { grid-template-columns: 64px 1fr auto; }
           .timeline-row { grid-template-columns: 62px 14px 1fr; }
@@ -1855,8 +2538,12 @@ function App() {
           .print-title { margin-bottom: 20px; font-family: var(--font-display); }
           .print-title h1 { font-size: 22px; margin: 0 0 4px; }
           .print-title p { font-size: 12px; color: var(--ink-soft); margin: 0; }
-          .card { box-shadow: none; break-inside: avoid; }
+          .card { box-shadow: none; break-inside: avoid; page-break-inside: avoid; border-color: #bbb; }
+          .day-card { page-break-inside: avoid; break-inside: avoid; margin-bottom: 10px; }
+          .two-col { grid-template-columns: 1fr 1fr; }
+          .section-heading { page-break-after: avoid; }
           .shell { max-width: 100%; padding: 0; }
+          .report-actions, .restore-label { display: none !important; }
         }
       `}</style>
 
@@ -1912,7 +2599,7 @@ function App() {
         {activeTab === "history" && (
           <HistoryTab entries={entries} setEntries={setEntries} persist={persistEntries} setSelectedDate={setSelectedDate} setActiveTab={setActiveTab} />
         )}
-        {activeTab === "report" && <ReportTab entries={entries} />}
+        {activeTab === "report" && <ReportTab entries={entries} onRestore={handleRestore} />}
       </div>
     </div>
   );
